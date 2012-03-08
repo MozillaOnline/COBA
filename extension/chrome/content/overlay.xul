@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://coba/skin/coba.css" type="text/css"?>
+
+<!DOCTYPE window [
+<!ENTITY % cobaDTD SYSTEM "chrome://coba/locale/coba.dtd" >
+%cobaDTD;
+]>
+
+<overlay id="cobaOverlay"
+   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	 xmlns:html="http://www.w3.org/1999/xhtml">
+
+<script type="application/x-javascript" src="chrome://coba/content/common.js" />
+<script type="application/x-javascript" src="chrome://coba/content/CookieObserver.js" />
+<script type="application/x-javascript" src="chrome://coba/content/httpObserver.js" />
+<script type="application/x-javascript" src="chrome://coba/content/overlay.js" />
+
+<commandset id="mainCommandSet">
+	<command id="cmd_cobaToggle" oncommand="COBA.switchEngine();" />
+</commandset>
+	
+<keyset id="mainKeyset">
+	<key id="key_cobaToggle" command="cmd_cobaToggle"/>
+</keyset>
+
+<!-- urlbar switch button -->
+<textbox id="urlbar">
+	 <toolbarbutton id="coba-urlbar-switch" hidden="true" insertbefore="urlbar-go-button"
+									onclick="COBA.clickSwitchButton(event);" tooltip="coba-urlbar-switch-tooltip" engine="fx">
+			<image id="coba-urlbar-switch-image" class="coba-status-image"/>
+			<label id="coba-urlbar-switch-label"/>
+			<!-- tooltips -->
+			<tooltip id="coba-urlbar-switch-tooltip" noautohide="true" orient="vertical" position="before_start" style="padding:2px;">
+			 <vbox>
+				 <label value="&coba.urlbar.switch.tooltip1;" style="margin:2px;"/>
+				 <label id="coba-urlbar-switch-tooltip2" style="margin:2px;"/>
+				 <label value="&coba.urlbar.switch.tooltip3;" style="margin:2px;"/>
+			 </vbox>
+			</tooltip>			
+	 </toolbarbutton>
+</textbox>
+
+<!-- Toolbar button-->
+<toolbarpalette id="BrowserToolbarPalette">
+	<toolbarbutton id="coba-toolbar-palette-button"
+	label="&coba.switchButton.label;"
+	class="toolbarbutton-1 chromeclass-toolbar-additional"
+	onclick="COBA.clickSwitchButton(event);" tooltip="coba-urlbar-switch-tooltip"
+	engine="fx" />
+</toolbarpalette>
+
+<!-- Popup menus -->
+<popupset>
+  <!-- Switch button context menu -->
+  <menupopup id="coba-switch-button-context-menu">
+    <menuitem label="&coba.settings.title;" oncommand="COBA.openOptionsDialog()"/>
+  </menupopup>
+
+  <panel id="coba-identity-popup" type="arrow" hidden1="true" noautofocus="true" onpopupshown="document.getElementById('coba-identity-popup-more-info-button').focus();" level="top">
+    <hbox id="coba-identity-popup-container" align="top">
+      <image id="coba-identity-popup-icon"/>
+      <vbox id="coba-identity-popup-content-box">
+        <label class="identity-popup-label" value="&coba.urlbar.notify.title;"/>
+        <label class="identity-popup-label" value=""/>
+        <label class="identity-popup-label" value="&coba.urlbar.notify.text;"/>
+        <label class="identity-popup-label" value=""/>
+        <hbox id="coba-identity-popup-button-container" pack="end">
+          <button id="coba-identity-popup-more-info-button" label="&coba.urlbar.notify.FF;" oncommand="if(COBA.isIEEngine()){COBA.switchEngine();COBA.hideNotify()}"/>
+        </hbox>
+      </vbox>
+    </hbox>
+  </panel>
+
+</popupset>
+
+<!-- tab context menu -->
+<menupopup id="tabContextMenu">
+  <menuseparator insertbefore="tabContextMenu" />
+  <menuitem id="coba-tab-switch" insertbefore="tabContextMenu" type="checkbox"
+            checked="false" label="&coba.urlbar.menuswitch.title.IE;" oncommand="COBA.switchEngine();" />
+</menupopup>
+<!-- popup menus -->
+
+</overlay>
