@@ -86,6 +86,10 @@ COBA.HttpObserver = {
     var isWindowURI = httpChannel.loadFlags & Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI;
 		if (isWindowURI) {
       var url = httpChannel.URI.spec;
+      var skipDomain = tab.getAttribute("skipDomain");
+  	  if (skipDomain && skipDomain == COBA.getUrlDomain(url).toLowerCase()) {
+  			return ;
+  		}
       if (this.shouldFilter(url)) {
         if (!tab.linkedBrowser) return;
 				
@@ -124,9 +128,6 @@ COBA.HttpObserver = {
   },
   
   shouldFilter: function(url) {
-	  if (COBA.manualSwitchUrl && COBA.getUrlDomain(COBA.manualSwitchUrl) == COBA.getUrlDomain(url)) {
-			return false;
-		}
     return !watcher.isCOBAURL(url)
          && !COBA.isFirefoxOnly(url)
          && watcher.isFilterEnabled()

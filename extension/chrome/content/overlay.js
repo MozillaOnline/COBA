@@ -42,21 +42,6 @@ COBA.getCOBAURL = function(url) {
 	return COBA.containerUrl + encodeURI(url);
 }
 
-/** 从Plugin URL中提取实际访问的URL */
-COBA.getActualUrl = function(url) {
-	if (url && url.length > 0) {
-		url = url.replace(/^\s+/g, "").replace(/\s+$/g, "");
-		if (/^file:\/\/.*/.test(url)) url = url.replace(/\|/g, ":");
-		if (url.substr(0, COBA.containerUrl.length) == COBA.containerUrl) {
-			url = decodeURI(url.substring(COBA.containerUrl.length));
-
-			if (!/^[\w]+:/.test(url)) {
-				url = "http://" + url;
-			}
-		}
-	}
-	return url;
-}
 
 /** 获取Firefox页面内嵌的plugin对象 */
 COBA.getPluginObject = function(aTab) {
@@ -128,11 +113,14 @@ COBA.switchTabEngine = function(aTab) {
 		var url = COBA.getPluginObjectURL(aTab);
 		
 		var isIEEngineAfterSwitch = !COBA.isIEEngine(aTab);
-		
+		var domain = COBA.getUrlDomain(url).toLowerCase();
+		if (isIEEngineAfterSwitch && aTab.getAttribute("skipDomain") == domain) {
+			aTab.setAttribute("skipDomain","");
+		}
 		if (!isIEEngineAfterSwitch) {
 			// Now it is IE engine, call me means users want to switch to Firefox engine.
 			// We have to tell watcher that this is manual switching, do not switch back to IE engine
-			COBA.manualSwitchUrl = url;
+			aTab.setAttribute("skipDomain",domain);
 		}
 		let zoomLevel = COBA.getZoomLevel();
 		COBA.setTabAttributeJSON(aTab, 'zoom', {zoomLevel: zoomLevel});
@@ -169,6 +157,8 @@ COBA.setUrlBarSwitchButtonStatus = function(isIEEngine) {
 		let tooltipId = isIEEngine ? "coba.urlbar.switch.tooltip2.ie" : "coba.urlbar.switch.tooltip2.fx";
 		tooltip.value = Strings.global.GetStringFromName(tooltipId);
 	}
+	var btn_urlbar_icon = document.getElementById("coba-urlbar-icon");
+	btn_urlbar_icon.setAttribute("hidden", (isIEEngine ? "false" : "true"));
 }
 
 // 工具栏按钮的状态与地址栏状态相同
@@ -185,7 +175,7 @@ COBA.updateTabMenu = function() {
 	let urlbarButton = document.getElementById("coba-urlbar-switch");
 	let menu = document.getElementById("coba-tab-switch");
 	if (urlbarButton && menu) {
-		menu.setAttribute("checked", (COBA.isIEEngine() ? "true" : "false"));
+		menu.setAttribute("checked", (COBA.isIEEngine(COBA.getContextTab()) ? "true" : "false"));
 	}
 }
 
@@ -327,8 +317,7 @@ COBA.updateInterface = function() {
 	COBA.updateStopReloadButtons();
 	COBA.updateSecureLockIcon();
 	COBA.updateUrlBar();
-	COBA.updateToolBar();
-	COBA.updateTabMenu();
+//	COBA.updateToolBar();
 }
 
 /** 更新相关的界面*/
@@ -661,6 +650,7 @@ COBA.addEventAll = function() {
 	Services.obs.addObserver(COBA.HttpObserver, 'http-on-modify-request', false);
 	COBA.CookieObserver.register();
 	COBA.Observer.register();
+	COBA.addEventListener("tabContextMenu", "popupshowing", COBA.updateTabMenu);
 
 	COBA.addEventListener(window, "DOMContentLoaded", COBA.onPageShowOrLoad);
 	COBA.addEventListener(window, "pageshow", COBA.onPageShowOrLoad);
@@ -678,6 +668,8 @@ COBA.removeEventAll = function() {
 	Services.obs.removeObserver(COBA.HttpObserver, 'http-on-modify-request');
 	COBA.CookieObserver.unregister();
 	COBA.Observer.unregister();
+
+	COBA.removeEventListener("tabContextMenu", "popupshowing", COBA.updateTabMenu);
 	
 	COBA.removeEventListener(window, "DOMContentLoaded", COBA.onPageShowOrLoad);
 	COBA.removeEventListener(window, "pageshow", COBA.onPageShowOrLoad);
@@ -747,27 +739,28 @@ COBA.setupUrlBar = function() {
 	let showUrlBarLabel = Services.prefs.getBoolPref("extensions.coba.showUrlBarLabel", true);
 	document.getElementById("coba-urlbar-switch-label").hidden = !showUrlBarLabel;
   var btn_identity = document.getElementById("identity-box");
-  btn_identity && btn_identity.addEventListener("click", COBA.clickIdentityBox, false);
+  btn_identity && btn_identity.addEventListener("click", COBA.showPanel, false);
+  var btn_urlbar_icon = document.getElementById("coba-urlbar-icon");
+  btn_urlbar_icon && btn_urlbar_icon.addEventListener("click", COBA.showPanel, false);
 }
 
 
 // identity-box事件
-COBA.clickIdentityBox = function (e) {
+COBA.showPanel = function (e) {
   if (e.button == 0) {
     var location = gBrowser.contentWindow.location;
 
    if (location.href.indexOf(COBA.containerUrl) == 0) {
-      COBA.notify();
+      COBA.notify(e.originalTarget);
     }
   }
 
   e.preventDefault();
 }
 
-COBA.notify = function () {
-  var btn_identity = document.getElementById("identity-box");
+COBA.notify = function (ele) {
   var panel = document.getElementById("coba-identity-popup");
-  panel.openPopup(btn_identity, "after_start", 15, 0, true, false);
+  panel.openPopup(ele, "after_start", 15, 0, true, false);
 }
 
 COBA.hideNotify = function () {
@@ -814,5 +807,4 @@ COBA.Observer = {
 
 window.addEventListener("load", COBA.init, false);
 window.addEventListener("unload", COBA.destroy, false);
-COBA.manualSwitchUrl = null;
 COBA.engineAttr = "cobaEngine";

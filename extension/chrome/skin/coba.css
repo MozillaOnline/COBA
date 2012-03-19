@@ -1,5 +1,9 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+#coba-urlbar-icon{
+  list-style-image: url("chrome://coba/skin/logo-16-bw.png");
+}
+
 #coba-urlbar-switch[engine="fx"] .coba-status-image, #coba-toolbar-palette-button[engine="fx"]{
   list-style-image: url("chrome://coba/skin/engine-fx.png");
 }

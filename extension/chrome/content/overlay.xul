@@ -39,15 +39,20 @@
 			</tooltip>			
 	 </toolbarbutton>
 </textbox>
-
+<hbox id="urlbar-icons">
+  <image id="coba-urlbar-icon" insertafter="page-report-button"
+         hidden="true"
+         tooltiptext="&coba.urlbar.switch.tooltip0;"
+         />
+</hbox>
 <!-- Toolbar button-->
-<toolbarpalette id="BrowserToolbarPalette">
+<!--toolbarpalette id="BrowserToolbarPalette">
 	<toolbarbutton id="coba-toolbar-palette-button"
 	label="&coba.switchButton.label;"
 	class="toolbarbutton-1 chromeclass-toolbar-additional"
 	onclick="COBA.clickSwitchButton(event);" tooltip="coba-urlbar-switch-tooltip"
 	engine="fx" />
-</toolbarpalette>
+</toolbarpalette-->
 
 <!-- Popup menus -->
 <popupset>
@@ -77,7 +82,7 @@
 <menupopup id="tabContextMenu">
   <menuseparator insertbefore="tabContextMenu" />
   <menuitem id="coba-tab-switch" insertbefore="tabContextMenu" type="checkbox"
-            checked="false" label="&coba.urlbar.menuswitch.title.IE;" oncommand="COBA.switchEngine();" />
+            checked="false" label="&coba.urlbar.menuswitch.title.IE;" oncommand="COBA.switchTabEngine(COBA.getContextTab());" />
 </menupopup>
 <!-- popup menus -->
 

@@ -48,6 +48,22 @@ COBA.isValidDomainName = function (domainName) {
   return /^[0-9a-zA-Z]+[0-9a-zA-Z\.\_\-]*\.[0-9a-zA-Z\_\-]+$/.test(domainName);
 }
 
+/** 从Plugin URL中提取实际访问的URL */
+COBA.getActualUrl = function(url) {
+	if (url && url.length > 0) {
+		url = url.replace(/^\s+/g, "").replace(/\s+$/g, "");
+		if (/^file:\/\/.*/.test(url)) url = url.replace(/\|/g, ":");
+		if (url.substr(0, COBA.containerUrl.length) == COBA.containerUrl) {
+			url = decodeURI(url.substring(COBA.containerUrl.length));
+
+			if (!/^[\w]+:/.test(url)) {
+				url = "http://" + url;
+			}
+		}
+	}
+	return url;
+}
+
 COBA.getChromeWindow = function () {
   return Services.wm.getMostRecentWindow("navigator:browser");
 }

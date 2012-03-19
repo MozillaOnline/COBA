@@ -102,6 +102,11 @@ namespace Plugin
 		*/
 		BOOL FireEvent(const CString &strEventType, const CString &strDetail);
 
+
+		/** 
+    *  通知页面刷新图标
+    */
+    void OnLoadComplete();
 		/** 获取Firefox窗口放大系数
 		*  对应的JavaScript代码为IMode.getZoomLevel()，这里省略了window，
 		*  完整的代码 window.IMode.getZoomLevel()

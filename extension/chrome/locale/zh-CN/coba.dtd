@@ -1,5 +1,6 @@
 <!ENTITY coba.switchButton.label "支付助手">
 
+<!ENTITY coba.urlbar.switch.tooltip0 "已启用支付助手">
 <!ENTITY coba.urlbar.switch.tooltip1 "切换浏览模式">
 <!ENTITY coba.urlbar.switch.tooltip3 "右键点击设置 支付助手 选项">
 <!ENTITY coba.urlbar.menuswitch.title.IE "使用IE模式浏览本页">

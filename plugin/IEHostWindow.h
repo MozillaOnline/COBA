@@ -174,6 +174,9 @@ public:
 	BOOL GetCanPaste(){return IsOleCmdEnabled(OLECMDID_PASTE);}
 	BOOL GetCanSelectAll(){return IsOleCmdEnabled(OLECMDID_SELECTALL);}
 	INT32 GetProgress() {return m_iProgress;}
+  CString GetFaviconURL();
+  CString GetFaviconURLFromContent();
+  CString m_strFaviconURL;
 
 	// plugin events
 	void OnTitleChanged(const CString& title);

@@ -25,6 +25,9 @@ var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
 Cu.import("resource://coba/cobaUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/PlacesUtils.jsm")
+Cu.import("resource://gre/modules/NetUtil.jsm")
 
 var COBAContainer = {
 	init: function() {
@@ -104,6 +107,7 @@ var COBAContainer = {
 		window.addEventListener("PluginNotFound", COBAContainer._pluginNotFoundListener, false);
 		window.addEventListener("IeTitleChanged", COBAContainer._onTitleChanged, false);
 		window.addEventListener("CloseIETab", COBAContainer._onCloseIETab, false);
+		window.addEventListener("LoadComplete", COBAContainer._onLoadComplete, false);
 		var pluginObject = document.getElementById(COBA.objectID);
 		if (pluginObject) {
 			pluginObject.addEventListener("focus", COBAContainer._onPluginFocus, false);
@@ -126,6 +130,17 @@ var COBAContainer = {
 		window.setTimeout(function() {
 			window.close();
 		}, 100);
+	},
+
+	/** 响应加载完成事件 */
+	_onLoadComplete: function(event) {
+	
+    var pluginObject = event.originalTarget;
+    var url = pluginObject.FaviconURL;
+    
+    var icon = document.getElementById("icon");
+    icon.setAttribute("href",url);
+    icon.parentNode.appendChild(icon);
 	},
 	
 	/**

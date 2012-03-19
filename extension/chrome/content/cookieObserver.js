@@ -137,18 +137,20 @@ COBA.CookieObserver = {
         }
         break;
       case 'cleared':
-        cobaUtils.LOG('[logCookie cleared]');
+//        cobaUtils.LOG('[logCookie cleared]');
         break;
       case 'reload':
-        cobaUtils.LOG('[logCookie reload]');
+//        cobaUtils.LOG('[logCookie reload]');
         break;
     }
   },
     
   logCookie: function(tag, cookie2) {
+    /*
     cobaUtils.LOG('[logCookie ' + tag + "] host:" + cookie2.host + " path:" + cookie2.path +
                     " name:" + cookie2.name + " value:" + decodeURI(cookie2.value) +
                     " expires:" + new Date(cookie2.expires*1000).toGMTString() + " isHttpOnly:" + cookie2.isHttpOnly +
                     " isSession:" + cookie2.isSession);
+                    */
   }
 };

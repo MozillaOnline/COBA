@@ -50,6 +50,7 @@ namespace Plugin
 	{
 		if (name == m_URLID ||
 			name == m_TitleID ||
+			name == m_FaviconURLID ||
 			name == m_CanRefreshID ||
 			name == m_CanStopID ||
 			name == m_CanBackID ||
@@ -83,7 +84,14 @@ namespace Plugin
 			STRINGZ_TO_NPVARIANT(CStringToNPStringCharacters(title), *result);
 			return true;
 		}
-		// readonly property {boolean} CanRefresh
+    // readonly property {string} FaviconURL
+    else if (name == m_FaviconURLID)
+    {
+      CString url = m_pMainWindow->GetFaviconURL();
+      STRINGZ_TO_NPVARIANT(CStringToNPStringCharacters(url), *result);
+      return true;
+    }
+    // readonly property {boolean} CanRefresh
 		else if (name == m_CanRefreshID)
 		{
 			BOOL canRefresh = m_pMainWindow->GetCanRefresh();

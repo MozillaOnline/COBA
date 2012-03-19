@@ -8,7 +8,9 @@
 #include "MonitorSink.h"
 #include "PluginApp.h"
 #include "ScriptablePluginObject.h"
+#include "URI.h"
 
+using namespace Utils;
 namespace HttpMonitor
 {
 	// 把以 \0 分隔的 Raw HTTP Header 数据转换成以 \r\n 分隔的 Header
@@ -104,8 +106,10 @@ namespace HttpMonitor
 
 			CString strHeaders(W2T(*pszAdditionalHeaders));
 
-			static const BOOL SYNC_USER_AGENT = TRUE;
-		  if (SYNC_USER_AGENT && m_strURL.Find(_T("cmbchina.com")) == -1)
+			//static const BOOL SYNC_USER_AGENT = TRUE;
+      URI uri(m_strURL);
+      CString host(uri.getHost());
+		  if (host.Find(_T("taobao.com")) == 0 || host.Find(_T("mail.sina.com")) == 0)
 			{
 				// 增加 User-Agent
 				CString strUserAgent;
