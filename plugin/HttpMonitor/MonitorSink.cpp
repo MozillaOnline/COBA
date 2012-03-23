@@ -124,6 +124,7 @@ namespace HttpMonitor
 					TCHAR* tstr = new TCHAR[cnt];
 					_tcsncpy_s(tstr, cnt, strHeaders, cnt);
 					wcscpy_s(*pszAdditionalHeaders, nLen, T2W(tstr));
+          delete [] tstr;
 				}
 			}
 		}

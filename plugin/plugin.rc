@@ -152,7 +152,7 @@ BEGIN
             VALUE "FileExtents", "*"
             VALUE "FileVersion", "1.0.0.1"
             VALUE "InternalName", "npcoba.dll"
-            VALUE "LegalCopyright", "Copyright (C) 2012 yxl.name"
+            VALUE "LegalCopyright", "Copyright (C) Mozilla Online 2012"
             VALUE "MIMEType", "application/coba"
             VALUE "OriginalFilename", "npcoba.dll"
             VALUE "ProductName", "China Online Banking Assistant"

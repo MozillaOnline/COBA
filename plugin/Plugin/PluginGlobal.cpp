@@ -41,15 +41,16 @@ namespace Plugin
 		{
 			return NPERR_GENERIC_ERROR;
 		}
+    //¼üÅÌÏûÏ¢
 		if (!BrowserHook::WindowMessageHook::s_instance.Install())
 		{
 			return NPERR_GENERIC_ERROR;
 		}
-
-		if (OS::GetVersion() == OS::WIN7 || OS::GetVersion() == OS::VISTA)
-		{
-			BrowserHook::AtlDepHook::s_instance.Install();
-		}
+    //dep
+		//if (OS::GetVersion() == OS::WIN7 || OS::GetVersion() == OS::VISTA)
+		//{
+		//	BrowserHook::AtlDepHook::s_instance.Install();
+		//}
 
 		return NPERR_NO_ERROR;
 	}

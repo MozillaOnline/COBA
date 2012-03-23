@@ -31,6 +31,7 @@ Cu.import("resource://gre/modules/NetUtil.jsm")
 
 var COBAContainer = {
 	init: function() {
+	  this.tracking("init");
 		window.removeEventListener('DOMContentLoaded', COBAContainer.init, false);
 		var container = document.getElementById('container');
 		if (!container) {
@@ -51,6 +52,21 @@ var COBAContainer = {
 	destroy: function(event) {
 		window.removeEventListener('unload', COBAContainer.destroy, false);
 		
+	},
+	tracking: function(type){
+    var _trackurl = 'http://addons.g-fox.cn/coba.gif';
+    var _uuidprf = 'extensions.coba.uuid';
+    var uuid = Application.prefs.getValue(_uuidprf,"");
+    if(uuid == ""){
+  		var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
+  		uuid = uuidgen.generateUUID().number;
+  		Application.prefs.setValue(_uuidprf,uuid);
+    }
+    var image = new Image();
+    image.src = _trackurl + '?r=' + Math.random()
+              + '&uuid=' + uuid
+              + '&type=' + type
+              ;	  
 	},
 	
 	_getNavigateParam: function(name) {
@@ -135,6 +151,7 @@ var COBAContainer = {
 	/** 响应加载完成事件 */
 	_onLoadComplete: function(event) {
 	
+	  this.tracking("LoadComplete");
     var pluginObject = event.originalTarget;
     var url = pluginObject.FaviconURL;
     
