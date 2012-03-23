@@ -32,94 +32,104 @@ along with Fire-IE.  If not, see <http://www.gnu.org/licenses/>.
 #pragma pack(push,1)
 struct _WndProcThunk
 {
-DWORD m_mov; // mov dword ptr [esp+0x4], pThis (esp+0x4 is hWnd)
-DWORD m_this; //
-BYTE m_jmp; // jmp WndProc
-DWORD m_relproc; // relative jmp
+  DWORD m_mov; // mov dword ptr [esp+0x4], pThis (esp+0x4 is hWnd)
+  DWORD m_this; //
+  BYTE m_jmp; // jmp WndProc
+  DWORD m_relproc; // relative jmp
 };
 #pragma pack(pop)
 
 namespace BrowserHook
 {
-	BOOL FixThunk(LONG dwLong);
+  BOOL FixThunk(LONG dwLong);
 
-	LONG WINAPI SetWindowLongA_hook(HWND hWnd, int nIndex, LONG dwNewLong) 
-	{
-		TRACE("[coba] SetWindowLongA_hook\n");
+  LONG WINAPI SetWindowLongA_hook(HWND hWnd, int nIndex, LONG dwNewLong) 
+  {
+    TRACE("[coba] SetWindowLongA_hook\n");
 
-		if (!FixThunk(dwNewLong))
-		{
-			TRACE("[coba] FixThunk failed!\n");
-		}
+    if (!FixThunk(dwNewLong))
+    {
+      TRACE("[coba] FixThunk failed!\n");
+    }
 
-		return SetWindowLongA(hWnd, nIndex, dwNewLong);
-	}
+    return SetWindowLongA(hWnd, nIndex, dwNewLong);
+  }
 
 
-	LONG WINAPI SetWindowLongW_hook(HWND hWnd, int nIndex, LONG dwNewLong) 
-	{
-		TRACE("[coba] SetWindowLongA_hook\n");
+  LONG WINAPI SetWindowLongW_hook(HWND hWnd, int nIndex, LONG dwNewLong) 
+  {
+    TRACE("[coba] SetWindowLongA_hook\n");
 
-		if (!FixThunk(dwNewLong))
-		{
-			TRACE("[coba] FixThunk failed!\n");
-		}
+    if (!FixThunk(dwNewLong))
+    {
+      TRACE("[coba] FixThunk failed!\n");
+    }
 
-		return SetWindowLongW(hWnd, nIndex, dwNewLong);
-	}
+    return SetWindowLongW(hWnd, nIndex, dwNewLong);
+  }
 
-	struct FunctionInfo
-	{
-		LPCSTR  szFunctionModule;
-		LPCSTR  szFunctionName;
-		PROC    pHookFunction;
-	};
+  HRESULT WINAPI CoCreateInstance_hook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext, REFIID riid, LPVOID* ppv)
+  {
+    TRACE(_T("[coba] CoCreateInstance_hook\n"));
+    HRESULT hret =  ::CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
+    AtlDepHook::s_instance.Install();
+    return hret;
+  }
 
-	FunctionInfo s_Functions[] = 
-	{
-		DEFINE_FUNCTION_INFO("user32.dll", SetWindowLongA),
-		DEFINE_FUNCTION_INFO("user32.dll", SetWindowLongW),
-	};
 
-	const size_t s_FunctionsCount = sizeof(s_Functions)/sizeof(FunctionInfo);
+  struct FunctionInfo
+  {
+    LPCSTR  szFunctionModule;
+    LPCSTR  szFunctionName;
+    PROC    pHookFunction;
+  };
 
-	BOOL CheckThunk(_WndProcThunk* pThunk)
-	{
-		if (pThunk->m_mov != 0x042444C7)
-		{
-			return FALSE;
-		}
-		if (pThunk->m_jmp != 0xE9)
-		{
-			return FALSE;
-		}
-		return TRUE;
-	}
+  FunctionInfo s_Functions[] = 
+  {
+    DEFINE_FUNCTION_INFO("user32.dll", SetWindowLongA),
+    DEFINE_FUNCTION_INFO("user32.dll", SetWindowLongW),
+    DEFINE_FUNCTION_INFO("ole32.dll", CoCreateInstance),
+  };
 
-	BOOL FixThunk(LONG dwLong)
-	{
-		_WndProcThunk* pThunk = (_WndProcThunk*)dwLong;
+  const size_t s_FunctionsCount = sizeof(s_Functions)/sizeof(FunctionInfo);
 
-		MEMORY_BASIC_INFORMATION mbi;
-		DWORD dwOldProtect;
+  BOOL CheckThunk(_WndProcThunk* pThunk)
+  {
+    if (pThunk->m_mov != 0x042444C7)
+    {
+      return FALSE;
+    }
+    if (pThunk->m_jmp != 0xE9)
+    {
+      return FALSE;
+    }
+    return TRUE;
+  }
 
-		if (IsBadReadPtr(pThunk, sizeof(_WndProcThunk)) || !CheckThunk(pThunk))
-		{
-			return TRUE;
-		}
+  BOOL FixThunk(LONG dwLong)
+  {
+    _WndProcThunk* pThunk = (_WndProcThunk*)dwLong;
 
-		if (VirtualQuery((LPCVOID)pThunk, &mbi, sizeof(MEMORY_BASIC_INFORMATION)) == 0)
-		{
-			return FALSE;
-		}
-		// The memory is already PAGE_EXECUTE_READWRITE, so don't need fixing
-		if (mbi.AllocationProtect == PAGE_EXECUTE_READWRITE)
-		{
-			return TRUE;
-		}
+    MEMORY_BASIC_INFORMATION mbi;
+    DWORD dwOldProtect;
 
-		return VirtualProtect((LPVOID)pThunk, sizeof(_WndProcThunk), PAGE_EXECUTE_READWRITE, &dwOldProtect);
-	}
+    if (IsBadReadPtr(pThunk, sizeof(_WndProcThunk)) || !CheckThunk(pThunk))
+    {
+      return TRUE;
+    }
+
+    if (VirtualQuery((LPCVOID)pThunk, &mbi, sizeof(MEMORY_BASIC_INFORMATION)) == 0)
+    {
+      return FALSE;
+    }
+    // The memory is already PAGE_EXECUTE_READWRITE, so don't need fixing
+    if (mbi.AllocationProtect == PAGE_EXECUTE_READWRITE)
+    {
+      return TRUE;
+    }
+
+    return VirtualProtect((LPVOID)pThunk, sizeof(_WndProcThunk), PAGE_EXECUTE_READWRITE, &dwOldProtect);
+  }
 
   BOOL ShouldHookModule( LPCSTR szModuleName)
   {
@@ -149,6 +159,7 @@ namespace BrowserHook
       "KWSUI", // Kingsoft Webshield Module
       "KDUMP", // Kingsoft Antivirus Dump Collect Lib
       "TORTOISE", // Tortoise Veriosn Control Client
+      "UPEDITOR", // China UnionPay ActiveX Control
     };
 
     // Converts to upper case string
@@ -168,7 +179,7 @@ namespace BrowserHook
     return TRUE;
   }
 
-	AtlDepHook AtlDepHook::s_instance;
+  AtlDepHook AtlDepHook::s_instance;
 
   void AtlDepHook::Install(void)
   {

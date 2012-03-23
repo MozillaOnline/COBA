@@ -47,10 +47,10 @@ namespace Plugin
 			return NPERR_GENERIC_ERROR;
 		}
     //dep
-		//if (OS::GetVersion() == OS::WIN7 || OS::GetVersion() == OS::VISTA)
-		//{
-		//	BrowserHook::AtlDepHook::s_instance.Install();
-		//}
+		if (OS::GetVersion() == OS::WIN7 || OS::GetVersion() == OS::VISTA)
+		{
+			BrowserHook::AtlDepHook::s_instance.Install();
+		}
 
 		return NPERR_NO_ERROR;
 	}
