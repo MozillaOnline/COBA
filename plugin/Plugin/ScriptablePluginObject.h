@@ -60,7 +60,6 @@ namespace Plugin
 	public:
 		ScriptablePluginObject(NPP npp)
 			: ScriptablePluginObjectBase(npp)
-			, m_pMainWindow(NULL)
 		{
 			// methods
 			m_NavigateID = NPN_GetStringIdentifier("Navigate");
@@ -103,12 +102,10 @@ namespace Plugin
 			uint32_t argCount, NPVariant *result);
 		virtual bool InvokeDefault(const NPVariant *args, uint32_t argCount,
 			NPVariant *result);
-		void SetMainWindow(CIEHostWindow* pWnd);
 
 	protected:
-		CIEHostWindow* m_pMainWindow;
-	};
-
+    CIEHostWindow* GetIEHostWindow();
+  };
 	static NPObject *
 		AllocateScriptablePluginObject(NPP npp, NPClass *aClass)
 	{

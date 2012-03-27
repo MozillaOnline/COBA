@@ -28,10 +28,36 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/PlacesUtils.jsm")
 Cu.import("resource://gre/modules/NetUtil.jsm")
+var tracking_random = Math.random();
+function tracking(type){
+  try{
+    var _trackurl = 'http://addons.g-fox.cn/coba.gif';
+    var _uuidprf = 'extensions.coba.uuid';
+    var uuid = Application.prefs.getValue(_uuidprf,"");
+    if(uuid == ""){
+  		var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
+  		uuid = uuidgen.generateUUID().number;
+  		Application.prefs.setValue(_uuidprf,uuid);
+    }
+    var image = new Image();
+    image.src = _trackurl + '?r=' + tracking_random
+              + '&uuid=' + uuid
+              + '&type=' + type
+              ;	  
+  }catch(e){}
+}
+var _tracking_Complete = false;
+function tracking_onLoadComplete(){
+  if(!_tracking_Complete){
+    _tracking_Complete = true;
+    tracking("LoadComplete");
+  }  
+}
+
 
 var COBAContainer = {
 	init: function() {
-	  this.tracking("init");
+	  tracking("init");
 		window.removeEventListener('DOMContentLoaded', COBAContainer.init, false);
 		var container = document.getElementById('container');
 		if (!container) {
@@ -51,22 +77,7 @@ var COBAContainer = {
 	
 	destroy: function(event) {
 		window.removeEventListener('unload', COBAContainer.destroy, false);
-		
-	},
-	tracking: function(type){
-    var _trackurl = 'http://addons.g-fox.cn/coba.gif';
-    var _uuidprf = 'extensions.coba.uuid';
-    var uuid = Application.prefs.getValue(_uuidprf,"");
-    if(uuid == ""){
-  		var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
-  		uuid = uuidgen.generateUUID().number;
-  		Application.prefs.setValue(_uuidprf,uuid);
-    }
-    var image = new Image();
-    image.src = _trackurl + '?r=' + Math.random()
-              + '&uuid=' + uuid
-              + '&type=' + type
-              ;	  
+		COBAContainer._unregisterEventHandler();
 	},
 	
 	_getNavigateParam: function(name) {
@@ -129,7 +140,17 @@ var COBAContainer = {
 			pluginObject.addEventListener("focus", COBAContainer._onPluginFocus, false);
 		}
 	},
-	
+  
+  _unregisterEventHandler: function(){
+		window.removeEventListener("PluginNotFound", COBAContainer._pluginNotFoundListener, false);
+		window.removeEventListener("IeTitleChanged", COBAContainer._onTitleChanged, false);
+		window.removeEventListener("CloseIETab", COBAContainer._onCloseIETab, false);
+		window.removeEventListener("LoadComplete", COBAContainer._onLoadComplete, false);
+		var pluginObject = document.getElementById(COBA.objectID);
+		if (pluginObject) {
+			pluginObject.removeEventListener("focus", COBAContainer._onPluginFocus, false);
+		}
+  },	
 
 	_pluginNotFoundListener: function(event) {
 		alert("Loading COBA plugin failed. Please try restarting Firefox.");
@@ -151,7 +172,7 @@ var COBAContainer = {
 	/** 响应加载完成事件 */
 	_onLoadComplete: function(event) {
 	
-	  this.tracking("LoadComplete");
+	  tracking_onLoadComplete();
     var pluginObject = event.originalTarget;
     var url = pluginObject.FaviconURL;
     

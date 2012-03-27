@@ -27,14 +27,14 @@ namespace BrowserHook
   class AtlDepHook
   {
   public:
+    // Single instance of the AtlDepHook for use in the plugin.
     static AtlDepHook s_instance;
     void Install(void);
     void Uninstall(void);
+    void InstallHooksForNewModule(HMODULE hModule);
   private:
     AtlDepHook(void){}
     ~AtlDepHook(void){}
-
-    void InstallHooksForNewModule(HMODULE hModule);
 
     HookMgr m_hookMgr;
   };
