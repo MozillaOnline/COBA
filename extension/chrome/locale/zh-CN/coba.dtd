@@ -1,16 +1,16 @@
-<!ENTITY coba.switchButton.label "支付助手">
+<!ENTITY coba.switchButton.label "网银支付助手">
 
 <!ENTITY coba.urlbar.switch.tooltip0 "已启用支付助手">
 <!ENTITY coba.urlbar.switch.tooltip1 "切换浏览模式">
-<!ENTITY coba.urlbar.switch.tooltip3 "右键点击设置 支付助手 选项">
+<!ENTITY coba.urlbar.switch.tooltip3 "右键点击设置 网银支付助手 选项">
 <!ENTITY coba.urlbar.menuswitch.title.IE "使用网银兼容模式浏览本页">
 <!ENTITY coba.urlbar.notify.title "网银支付助手">
-<!ENTITY coba.urlbar.notify.text "该页面已切换至支付助手兼容模式">
+<!ENTITY coba.urlbar.notify.text "该页面已切换至网银兼容模式">
 <!ENTITY coba.urlbar.notify.FF "使用Firefox浏览">
 
 <!ENTITY coba.settings.title "网银支付助手 选项">
 <!ENTITY coba.settings.filter.label "自定义">
-<!ENTITY coba.settings.filter.enabled "使用 网银支付助手 浏览以下网址">
+<!ENTITY coba.settings.filter.enabled "使用 网银兼容模式 浏览以下网址">
 <!ENTITY coba.settings.filter.column.rule "规则">
 <!ENTITY coba.settings.filter.column.enabled "激活">
 <!ENTITY coba.settings.filter.url.label "加入网址:">
@@ -19,7 +19,7 @@
 <!ENTITY coba.settings.filter.button.default "恢复默认规则">
 
 <!ENTITY coba.settings.filter.official.label "订阅">
-<!ENTITY coba.settings.filter.official.enabled "使用 网银支付助手 浏览以下网址">
+<!ENTITY coba.settings.filter.official.enabled "使用 网银兼容模式 浏览以下网址">
 <!ENTITY coba.settings.filter.official.updateFilter "自动更新订阅列表">
 <!ENTITY coba.settings.filter.official.column.rule "规则">
 <!ENTITY coba.settings.filter.official.column.enabled "激活">
