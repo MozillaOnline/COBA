@@ -127,26 +127,24 @@ NPError NPP_SetWindow (NPP instance, NPWindow* pNPWindow)
 		return NPERR_GENERIC_ERROR;
 
 	// window just created
-	if(!pPlugin->isInitialized() && (pNPWindow->window != NULL)) { 
-		if(!pPlugin->init(pNPWindow)) {
+	if(!pPlugin->isInitialized()) 
+	{ 
+		if(!pPlugin->init(pNPWindow)) 
+		{
 			return NPERR_MODULE_LOAD_FAILED_ERROR;
 		}
 	}
 
 	// window goes away
-	if((pNPWindow->window == NULL) && pPlugin->isInitialized())
+	if(pNPWindow->window == NULL)
 		return NPERR_NO_ERROR;
 
 	// window resized
-	if(pPlugin->isInitialized() && (pNPWindow->window != NULL))
+	if(pNPWindow->window != NULL)
 	{
 		pPlugin->SetWindow(pNPWindow);
 		return NPERR_NO_ERROR;
 	}
-
-	// this should not happen, nothing to do
-	if((pNPWindow->window == NULL) && !pPlugin->isInitialized())
-		return NPERR_NO_ERROR;
 
 	return rv;
 }

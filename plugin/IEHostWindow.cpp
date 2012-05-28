@@ -958,6 +958,10 @@ void CIEHostWindow::OnBeforeNavigate2(LPDISPATCH pDisp, VARIANT* URL, VARIANT* F
 {
 	COLE2T szURL(URL->bstrVal);
 	m_strLoadingUrl = szURL;
+	if (m_pPlugin)
+	{
+		m_pPlugin->OnLoading();
+	}
 }
 
 

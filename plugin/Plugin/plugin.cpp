@@ -507,6 +507,12 @@ BOOL CPlugin::FireEvent(const CString &strEventType, const CString &strDetail)
   return bOK;
 }
 
+void CPlugin::OnLoading()
+{
+  CString strEventType = _T("Loading");
+  CString strDetail = _T("");
+  FireEvent(strEventType, strDetail);
+}
 void CPlugin::OnLoadComplete()
 {
   CString strEventType = _T("LoadComplete");

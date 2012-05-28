@@ -64,36 +64,39 @@ namespace BrowserHook
 		// Uninstall the existing modules' hooks
 		//
 
-		HANDLE hSnapshot;
+		HANDLE hSnapshot = INVALID_HANDLE_VALUE;
 		MODULEENTRY32 me = {sizeof(MODULEENTRY32)};
 
 		hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,0);
-
-		BOOL bOk = Module32First(hSnapshot,&me);
-		while (bOk) 
+		if (INVALID_HANDLE_VALUE != hSnapshot)
 		{
-			UnInstallAllHooksForOneModule(me.hModule);
-			bOk = Module32Next(hSnapshot,&me);
-		}
-
-		//
-		// Clear invalid modules' hooks
-		//
-
-		while (m_modulesByOriginalFunc.size() > 0)
-		{
-			HookMap* pHookMap = m_modulesByOriginalFunc.begin()->second;
-			while (pHookMap->size() > 0)
+			BOOL bOk = Module32First(hSnapshot,&me);
+			while (bOk) 
 			{
-				HookItem* pItem = pHookMap->begin()->second;
-				pHookMap->erase(pHookMap->begin());
-				delete pItem;
+				UnInstallAllHooksForOneModule(me.hModule);
+				bOk = Module32Next(hSnapshot,&me);
 			}
-			m_modulesByOriginalFunc.erase(m_modulesByOriginalFunc.begin());
-			delete pHookMap;
-		}
 
-		LeaveCriticalSection(&m_cs);
+			//
+			// Clear invalid modules' hooks
+			//
+
+			while (m_modulesByOriginalFunc.size() > 0)
+			{
+				HookMap* pHookMap = m_modulesByOriginalFunc.begin()->second;
+				while (pHookMap->size() > 0)
+				{
+					HookItem* pItem = pHookMap->begin()->second;
+					pHookMap->erase(pHookMap->begin());
+					delete pItem;
+				}
+				m_modulesByOriginalFunc.erase(m_modulesByOriginalFunc.begin());
+				delete pHookMap;
+			}
+
+			LeaveCriticalSection(&m_cs);
+			CloseHandle(hSnapshot);
+		}
 	}
 
 	void HookMgr::UnInstallAllHooksForOneModule( HMODULE hModule )

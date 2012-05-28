@@ -134,6 +134,7 @@ var COBAContainer = {
 		window.addEventListener("PluginNotFound", COBAContainer._pluginNotFoundListener, false);
 		window.addEventListener("IeTitleChanged", COBAContainer._onTitleChanged, false);
 		window.addEventListener("CloseIETab", COBAContainer._onCloseIETab, false);
+		window.addEventListener("Loading", COBAContainer._onLoading, false);
 		window.addEventListener("LoadComplete", COBAContainer._onLoadComplete, false);
 		var pluginObject = document.getElementById(COBA.objectID);
 		if (pluginObject) {
@@ -145,6 +146,7 @@ var COBAContainer = {
 		window.removeEventListener("PluginNotFound", COBAContainer._pluginNotFoundListener, false);
 		window.removeEventListener("IeTitleChanged", COBAContainer._onTitleChanged, false);
 		window.removeEventListener("CloseIETab", COBAContainer._onCloseIETab, false);
+		window.removeEventListener("Loading", COBAContainer._onLoading, false);
 		window.removeEventListener("LoadComplete", COBAContainer._onLoadComplete, false);
 		var pluginObject = document.getElementById(COBA.objectID);
 		if (pluginObject) {
@@ -168,7 +170,41 @@ var COBAContainer = {
 			window.close();
 		}, 100);
 	},
-
+  firefoxFilterList : ["https://unionpaysecure.com/pay/LitePay.action*"
+                      ],
+  isMatchURL: function(url, pattern) {
+    if ((!pattern) || (pattern.length==0)) return false;
+    var retest = /^\/(.*)\/$/.exec(pattern);
+    if (retest) {
+       pattern = retest[1];
+    } else {
+       pattern = pattern.replace(/\\/g, "/");
+       var m = pattern.match(/^(.+:\/\/+[^\/]+\/)?(.*)/);
+       m[1] = (m[1] ? m[1].replace(/\./g, "\\.").replace(/\?/g, "[^\\/]?").replace(/\*/g, "[^\\/]*") : "");
+       m[2] = (m[2] ? m[2].replace(/\./g, "\\.").replace(/\+/g, "\\+").replace(/\?/g, "\\?").replace(/\*/g, ".*") : "");
+       pattern = m[1] + m[2];
+       pattern = "^" + pattern.replace(/\/$/, "\/.*") + "$";
+    }
+    var reg = new RegExp(pattern.toLowerCase());
+    return (reg.test(url.toLowerCase()));
+  },
+  isMatchFilterList : function(url) {
+    var aList = this.firefoxFilterList;
+    for (var i=0; i<aList.length; i++) {
+       var rule = aList[i];
+       if (this.isMatchURL(url, rule))
+         return true;
+    }
+    return false;
+  },
+	/** 响应开始加载事件 */
+	_onLoading: function(event) {
+    var pluginObject = event.originalTarget;
+    var url = pluginObject.URL;
+    if(COBAContainer.isMatchFilterList(url)){
+      Services.obs.notifyObservers(document, "COBA-swith-to-ie", null);
+    }
+	},
 	/** 响应加载完成事件 */
 	_onLoadComplete: function(event) {
 	

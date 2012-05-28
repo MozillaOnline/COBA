@@ -367,7 +367,7 @@ COBA.onNewIETab = function(event) {
 	let data = JSON.parse(event.detail);
 	let url = data.url;
 	let id = data.id;
-	let tab = COBA.addIeTab(COBA.getCOBAURL(url));
+	let tab = COBA.addIeTab(url);
 	var param = {id: id};
 	COBA.setTabAttributeJSON(tab, COBA.navigateParamsAttr, param);
 }
@@ -508,6 +508,22 @@ COBA.focusIE = function() {
 COBA.onTabSelected = function(e) {
 	COBA.updateAll();
 	COBA.focusIE();
+}
+COBA.switchToIEByDoc = {
+	// nsISupports
+	QueryInterface: function(iid) {
+		if (iid.equals(Ci.nsISupports) ||
+			iid.equals(Ci.nsIObserver)) {
+			return this;
+		}
+		throw Cr.NS_ERROR_NO_INTERFACE;
+	},
+	
+	// nsIObserver
+	observe: function(subject, topic, data) {		
+    var tab = COBA.getTabByDocument(subject);
+    tab && COBA.switchTabEngine(tab);
+	},
 }
 
 /** 获取document对应的Tab对象*/
@@ -662,6 +678,7 @@ COBA.addEventAll = function() {
 
 	COBA.addEventListener(window, "IeProgressChanged", COBA.onIEProgressChange);
 	COBA.addEventListener(window, "NewIETab", COBA.onNewIETab);
+  Services.obs.addObserver(COBA.switchToIEByDoc, "COBA-swith-to-ie", false);
 }
 
 COBA.removeEventAll = function() {
@@ -681,6 +698,7 @@ COBA.removeEventAll = function() {
 
 	COBA.removeEventListener(window, "ProgressChanged", COBA.onIEProgressChange);
 	COBA.removeEventListener(window, "NewIETab", COBA.onNewIETab);
+  Services.obs.removeObserver(COBA.switchToIEByDoc, "COBA-swith-to-ie");
 }
 
 COBA.init = function() {

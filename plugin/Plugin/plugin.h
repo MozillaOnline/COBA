@@ -105,6 +105,10 @@ namespace Plugin
 
 
 		/** 
+    *  开始加载页面
+    */
+    void OnLoading();
+		/** 
     *  通知页面刷新图标
     */
     void OnLoadComplete();
