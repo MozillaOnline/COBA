@@ -48,12 +48,6 @@
     <ClCompile Include="Cookie\CookieManager.cpp">
       <Filter>Cookie</Filter>
     </ClCompile>
-    <ClCompile Include="BrowserHook\HookImportFunction.cpp">
-      <Filter>BrowserHook</Filter>
-    </ClCompile>
-    <ClCompile Include="BrowserHook\HookMgr.cpp">
-      <Filter>BrowserHook</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IECtrl.h" />
@@ -125,12 +119,6 @@
     </ClInclude>
     <ClInclude Include="Cookie\CookieManager.h">
       <Filter>Cookie</Filter>
-    </ClInclude>
-    <ClInclude Include="BrowserHook\HookImportFunction.h">
-      <Filter>BrowserHook</Filter>
-    </ClInclude>
-    <ClInclude Include="BrowserHook\HookMgr.h">
-      <Filter>BrowserHook</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
