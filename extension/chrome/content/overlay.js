@@ -703,6 +703,12 @@ COBA.removeEventAll = function() {
 
 COBA.init = function() {
 	COBA.removeEventListener(window, "load", COBA.init);
+	setTimeout(function(){
+	  if(gBrowser.currentURI.spec != "about:blank")
+	    return;
+    gBrowser.contentDocument.documentElement.focus();
+  	window.focusAndSelectUrlBar()
+  },800)
 
   /**
    * navigator.plugins方法将使得最新安装的插件可用，更新相关数组，如 plugins 数组，并可选重新装入包含插件的已打开文档。
