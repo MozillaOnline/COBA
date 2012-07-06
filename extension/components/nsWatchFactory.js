@@ -100,7 +100,37 @@ function checkIECompatMode(){
   }catch(e) {ERROR(e)}
   wrk.close();
 }
-
+var prefOberver = {
+  QueryInterface: function(aIID) {
+    const Ci = Components.interfaces;
+    if (aIID.equals(Ci.nsIObserver) ||
+        aIID.equals(Ci.nsISupportsWeakReference) ||
+        aIID.equals(Ci.nsISupports))
+      return this;
+  
+    throw Components.results.NS_ERROR_NO_INTERFACE;
+  },
+  
+  observe: function(aSubject, aTopic, aPrefName) {
+    if (aTopic != "nsPref:changed")
+      return;
+    if(Services.prefs.getBoolPref("dom.ipc.plugins.enabled.npietab.dll", true))
+      Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npietab.dll", false);
+    if(Services.prefs.getBoolPref("dom.ipc.plugins.enabled.npietab2.dll", true))
+      Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npietab2.dll", false);
+    if(Services.prefs.getBoolPref("dom.ipc.plugins.enabled.npcoralietab.dll", true))
+      Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npcoralietab.dll", false);
+  },
+  
+}
+function conflictAddons(){
+  Services.prefs.addObserver("dom.ipc.plugins.enabled.npietab.dll", prefOberver, true);
+  Services.prefs.addObserver("dom.ipc.plugins.enabled.npietab2.dll", prefOberver, true);
+  Services.prefs.addObserver("dom.ipc.plugins.enabled.npcoralietab.dll", prefOberver, true);
+  Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npietab.dll", false);
+  Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npietab2.dll", false);
+  Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npcoralietab.dll", false);
+}
 var watchFactoryClass = function() {
   this.wrappedJSObject = this;
 }
@@ -115,6 +145,7 @@ watchFactoryClass.prototype = {
     case "profile-after-change":
       updateFilter();
       checkIECompatMode();
+      conflictAddons();
       break;
     };
   }

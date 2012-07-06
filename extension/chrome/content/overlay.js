@@ -700,7 +700,6 @@ COBA.removeEventAll = function() {
 	COBA.removeEventListener(window, "NewIETab", COBA.onNewIETab);
   Services.obs.removeObserver(COBA.switchToIEByDoc, "COBA-swith-to-ie");
 }
-
 COBA.init = function() {
 	COBA.removeEventListener(window, "load", COBA.init);
 	setTimeout(function(){
