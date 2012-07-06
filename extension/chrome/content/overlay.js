@@ -30,6 +30,7 @@ if (typeof(COBA) == "undefined") {
 var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components; 
 
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://coba/cobaUtils.jsm");
 let Strings = cobaUtils.Strings;
 
@@ -700,8 +701,22 @@ COBA.removeEventAll = function() {
 	COBA.removeEventListener(window, "NewIETab", COBA.onNewIETab);
   Services.obs.removeObserver(COBA.switchToIEByDoc, "COBA-swith-to-ie");
 }
-
+function checkConflict(){
+  if(Application.prefs.getValue("extensions.coba.conflict.warning",false))
+    return;
+	AddonManager.getAddonByID("coralietab@mozdev.org", function(addon) { // IE Tab +
+	  var find1 = addon && !addon.userDisabled;
+  	AddonManager.getAddonByID("ietab@ip.cn", function(addon) { // IE Tab Plus
+  	  var find2 = addon && !addon.userDisabled;
+  	  if(find1 || find2){
+  	    Application.prefs.setValue("extensions.coba.conflict.warning",true);
+  	    alert("“网银支付助手”可能会影响IE Tab Plus/IE Tab + 的使用。");
+  	  }
+  	});
+	});
+}
 COBA.init = function() {
+  checkConflict();
 	COBA.removeEventListener(window, "load", COBA.init);
 	setTimeout(function(){
 	  if(gBrowser.currentURI.spec != "about:blank")
