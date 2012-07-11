@@ -701,16 +701,43 @@ COBA.removeEventAll = function() {
 	COBA.removeEventListener(window, "NewIETab", COBA.onNewIETab);
   Services.obs.removeObserver(COBA.switchToIEByDoc, "COBA-swith-to-ie");
 }
+function AskUserDisableCOBA() {
+  var prompter = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+  var dummy = { value: false };
+
+  // Confirm the user wants to display passwords
+  return prompter.confirmEx(window,
+          null,
+          "“网银支付助手”会影响IE Tab Plus/IE Tab + 的正常使用。\n是否禁用“网银支付助手”并重启火狐？", prompter.STD_YES_NO_BUTTONS,
+          null, null, null, null, dummy) == 0;    // 0=="Yes" button
+}
+function restartFF(){
+  nsIAppStartup = Components.interfaces.nsIAppStartup;
+  var cancelQuit = Components.classes['@mozilla.org/supports-PRBool;1'].createInstance(Components.interfaces.nsISupportsPRBool);
+  var gObserverService = Components.classes['@mozilla.org/observer-service;1'].getService(Components.interfaces.nsIObserverService);
+  gObserverService.notifyObservers(cancelQuit, "quit-application-requested", "restart");
+  if (cancelQuit.data) {
+    return;
+  }
+  Components.classes['@mozilla.org/toolkit/app-startup;1'].getService(nsIAppStartup).quit(nsIAppStartup.eRestart | nsIAppStartup.eAttemptQuit);
+}
+
 function checkConflict(){
   if(Application.prefs.getValue("extensions.coba.conflict.warning",false))
     return;
+  Application.prefs.setValue("extensions.coba.conflict.warning",true);
 	AddonManager.getAddonByID("coralietab@mozdev.org", function(addon) { // IE Tab +
 	  var find1 = addon && !addon.userDisabled;
   	AddonManager.getAddonByID("ietab@ip.cn", function(addon) { // IE Tab Plus
   	  var find2 = addon && !addon.userDisabled;
   	  if(find1 || find2){
-  	    Application.prefs.setValue("extensions.coba.conflict.warning",true);
-  	    alert("“网银支付助手”可能会影响IE Tab Plus/IE Tab + 的使用。");
+  	    if(AskUserDisableCOBA()){//userDisabled
+        	AddonManager.getAddonByID("coba@mozilla.com.cn", function(addon) { //COBA
+        	  addon.userDisabled = true;
+        	  restartFF();
+        	});
+  	      
+  	    }
   	  }
   	});
 	});
