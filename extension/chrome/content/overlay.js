@@ -701,25 +701,25 @@ COBA.removeEventAll = function() {
 	COBA.removeEventListener(window, "NewIETab", COBA.onNewIETab);
   Services.obs.removeObserver(COBA.switchToIEByDoc, "COBA-swith-to-ie");
 }
-function AskUserDisableCOBA() {
+function askUser(find1,find2) {
   var prompter = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
   var dummy = { value: false };
+  var flag = prompter.BUTTON_POS_0 * prompter.BUTTON_TITLE_IS_STRING  +  
+             prompter.BUTTON_POS_1 * prompter.BUTTON_TITLE_CANCEL;  
+  var text = "扩展“网银支付助手”与您已安装的";
+  if(find1)
+    text += "“IE Tab +”";
+  if(find1 && find2)
+    text += "、";
+  if(find2)
+    text += "“IE Tab Plus”";
+  text += "功能类似，\n同时启用可能会造成使用过程中的某些冲突。\n\n";
+  text += "建议您到附加组件管理器中，只选择启用其中的一项即可。\n";
 
   // Confirm the user wants to display passwords
   return prompter.confirmEx(window,
-          null,
-          "“网银支付助手”会影响IE Tab Plus/IE Tab + 的正常使用。\n是否禁用“网银支付助手”并重启火狐？", prompter.STD_YES_NO_BUTTONS,
-          null, null, null, null, dummy) == 0;    // 0=="Yes" button
-}
-function restartFF(){
-  nsIAppStartup = Components.interfaces.nsIAppStartup;
-  var cancelQuit = Components.classes['@mozilla.org/supports-PRBool;1'].createInstance(Components.interfaces.nsISupportsPRBool);
-  var gObserverService = Components.classes['@mozilla.org/observer-service;1'].getService(Components.interfaces.nsIObserverService);
-  gObserverService.notifyObservers(cancelQuit, "quit-application-requested", "restart");
-  if (cancelQuit.data) {
-    return;
-  }
-  Components.classes['@mozilla.org/toolkit/app-startup;1'].getService(nsIAppStartup).quit(nsIAppStartup.eRestart | nsIAppStartup.eAttemptQuit);
+          "提示", text, flag,
+          "    打开附加组件管理器    ", null, null, null, dummy) == 0;    // 0=="打开附加组件管理器" button
 }
 
 function checkConflict(){
@@ -731,13 +731,8 @@ function checkConflict(){
   	AddonManager.getAddonByID("ietab@ip.cn", function(addon) { // IE Tab Plus
   	  var find2 = addon && !addon.userDisabled;
   	  if(find1 || find2){
-  	    if(AskUserDisableCOBA()){//userDisabled
-        	AddonManager.getAddonByID("coba@mozilla.com.cn", function(addon) { //COBA
-        	  addon.userDisabled = true;
-        	  restartFF();
-        	});
-  	      
-  	    }
+  	    if(askUser(find1 ,find2))
+  	      BrowserOpenAddonsMgr();  	    
   	  }
   	});
 	});
