@@ -167,9 +167,9 @@ function checkConflict(window){
   	AddonManager.getAddonByID("ietab@ip.cn", function(addon) { // IE Tab Plus
   	  var find2 = addon && !addon.userDisabled;
   	  if(find1 || find2){
+        Services.prefs.setBoolPref("extensions.coba.conflict.warning", true);
   	    if(askUser(window,find1 ,find2)){
-          Services.prefs.setBoolPref("extensions.coba.conflict.warning", true);
-  	      window.BrowserOpenAddonsMgr(); 
+ 	        window.BrowserOpenAddonsMgr(); 
   	    } 	    
   	  }
   	});
@@ -185,6 +185,7 @@ watchFactoryClass.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
                                          Ci.nsISupportsWeakReference]),
   
+  window: null,
   observe: function (aSubject, aTopic, aData) {
     switch (aTopic) {
     case "profile-after-change":
@@ -193,11 +194,15 @@ watchFactoryClass.prototype = {
       setPref();
       Services.obs.addObserver(this, "quit-application", true);
       Services.obs.addObserver(this, "domwindowopened", true);
+      Services.obs.addObserver(this, "sessionstore-windows-restored", true);
       break;
     case "domwindowopened":
       Services.obs.removeObserver(this, "domwindowopened");
-      var window = aSubject;
-      checkConflict(window);
+      this.window = aSubject;
+      break;
+    case "sessionstore-windows-restored":
+      Services.obs.removeObserver(this, "sessionstore-windows-restored");
+      checkConflict(this.window);
       break;
     case "quit-application":
       resetPref();
