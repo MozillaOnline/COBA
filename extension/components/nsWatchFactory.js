@@ -114,6 +114,7 @@ var prefOberver = {
   observe: function(aSubject, aTopic, aPrefName) {
     if (aTopic != "nsPref:changed")
       return;
+    return;
     if(Services.prefs.getBoolPref("dom.ipc.plugins.enabled.npietab.dll", true))
       Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npietab.dll", false);
     if(Services.prefs.getBoolPref("dom.ipc.plugins.enabled.npietab2.dll", true))
@@ -139,6 +140,42 @@ function resetPref(){
   Services.prefs.deleteBranch("dom.ipc.plugins.enabled.npietab2.dll");
   Services.prefs.deleteBranch("dom.ipc.plugins.enabled.npcoralietab.dll");
 }
+function askUser(window,find1,find2) {
+  var Strings = Services.strings.createBundle("chrome://coba/locale/global.properties");
+  var prompter = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
+  var dummy = { value: false };
+  var flag = prompter.BUTTON_POS_0 * prompter.BUTTON_TITLE_IS_STRING  +  
+             prompter.BUTTON_POS_1 * prompter.BUTTON_TITLE_CANCEL;  
+  var text = Strings.GetStringFromName("coba.conflict.askuser.string1");
+  if(find1)
+    text += Strings.GetStringFromName("coba.conflict.askuser.string2");
+  if(find1 && find2)
+    text += Strings.GetStringFromName("coba.conflict.askuser.string3");
+  if(find2)
+    text += Strings.GetStringFromName("coba.conflict.askuser.string4");
+  text += Strings.GetStringFromName("coba.conflict.askuser.string5");
+  return prompter.confirmEx(window,
+          Strings.GetStringFromName("coba.conflict.askuser.string6"), text, flag,
+          "    "+Strings.GetStringFromName("coba.conflict.askuser.string7")+"    ", null, null, null, dummy) == 0;    // 0=="打开附加组件管理器" button
+}
+
+function checkConflict(window){
+  if(Services.prefs.getBoolPref("extensions.coba.conflict.warning", false))
+    return;
+	AddonManager.getAddonByID("coralietab@mozdev.org", function(addon) { // IE Tab +
+	  var find1 = addon && !addon.userDisabled;
+  	AddonManager.getAddonByID("ietab@ip.cn", function(addon) { // IE Tab Plus
+  	  var find2 = addon && !addon.userDisabled;
+  	  if(find1 || find2){
+  	    if(askUser(window,find1 ,find2)){
+          Services.prefs.setBoolPref("extensions.coba.conflict.warning", true);
+  	      window.BrowserOpenAddonsMgr(); 
+  	    } 	    
+  	  }
+  	});
+	});
+}
+
 var watchFactoryClass = function() {
   this.wrappedJSObject = this;
 }
@@ -155,6 +192,12 @@ watchFactoryClass.prototype = {
       checkIECompatMode();
       setPref();
       Services.obs.addObserver(this, "quit-application", true);
+      Services.obs.addObserver(this, "domwindowopened", true);
+      break;
+    case "domwindowopened":
+      Services.obs.removeObserver(this, "domwindowopened");
+      var window = aSubject;
+      checkConflict(window);
       break;
     case "quit-application":
       resetPref();

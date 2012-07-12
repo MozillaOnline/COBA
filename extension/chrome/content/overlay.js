@@ -701,44 +701,7 @@ COBA.removeEventAll = function() {
 	COBA.removeEventListener(window, "NewIETab", COBA.onNewIETab);
   Services.obs.removeObserver(COBA.switchToIEByDoc, "COBA-swith-to-ie");
 }
-function askUser(find1,find2) {
-  var prompter = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-  var dummy = { value: false };
-  var flag = prompter.BUTTON_POS_0 * prompter.BUTTON_TITLE_IS_STRING  +  
-             prompter.BUTTON_POS_1 * prompter.BUTTON_TITLE_CANCEL;  
-  var text = "扩展“网银支付助手”与您已安装的";
-  if(find1)
-    text += "“IE Tab +”";
-  if(find1 && find2)
-    text += "、";
-  if(find2)
-    text += "“IE Tab Plus”";
-  text += "功能类似，\n同时启用可能会造成使用过程中的某些冲突。\n\n";
-  text += "建议您到附加组件管理器中，只选择启用其中的一项即可。\n";
-
-  // Confirm the user wants to display passwords
-  return prompter.confirmEx(window,
-          "提示", text, flag,
-          "    打开附加组件管理器    ", null, null, null, dummy) == 0;    // 0=="打开附加组件管理器" button
-}
-
-function checkConflict(){
-  if(Application.prefs.getValue("extensions.coba.conflict.warning",false))
-    return;
-  Application.prefs.setValue("extensions.coba.conflict.warning",true);
-	AddonManager.getAddonByID("coralietab@mozdev.org", function(addon) { // IE Tab +
-	  var find1 = addon && !addon.userDisabled;
-  	AddonManager.getAddonByID("ietab@ip.cn", function(addon) { // IE Tab Plus
-  	  var find2 = addon && !addon.userDisabled;
-  	  if(find1 || find2){
-  	    if(askUser(find1 ,find2))
-  	      BrowserOpenAddonsMgr();  	    
-  	  }
-  	});
-	});
-}
 COBA.init = function() {
-  checkConflict();
 	COBA.removeEventListener(window, "load", COBA.init);
 	setTimeout(function(){
 	  if(gBrowser.currentURI.spec != "about:blank")
