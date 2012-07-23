@@ -30,6 +30,17 @@ const _COBA_WATCH_CONTRACTID = "@mozilla.com.cn/coba;1";
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
+let IDS = ["coralietab@mozdev.org",
+             "IE Tab +",
+           "ietab@ip.cn",
+             "IE Tab Plus",
+           "{77b819fa-95ad-4f2c-ac7c-486b356188a9}",
+             "IE Tab",
+           "{1BC9BA34-1EED-42ca-A505-6D2F1A935BBB}",
+             "IE Tab 2",
+           "fireie@fireie.org",
+             "Fire IE",
+          ];
 
 ["LOG", "WARN", "ERROR"].forEach(function(aName) {
   this.__defineGetter__(aName, function() {
@@ -73,7 +84,7 @@ function checkIECompatMode(){
     value = wrk.readStringValue("version");
     wrk.close();
     value = value.split('.')[0];
-  }catch(e) {ERROR(e)}
+  }catch(e) {}
   var version = 8000;
   if(value ==  "9")
     version = 9000;
@@ -88,7 +99,7 @@ function checkIECompatMode(){
   try{
     value = 0;
     value = wrk.readIntValue("firefox.exe");
-  }catch(e) {ERROR(e)}
+  }catch(e) {}
 
   if (value != 0) {
     wrk.close();
@@ -97,7 +108,7 @@ function checkIECompatMode(){
 
   try{
     wrk.writeIntValue("firefox.exe", version);
-  }catch(e) {ERROR(e)}
+  }catch(e) {}
   wrk.close();
 }
 var prefOberver = {
@@ -140,40 +151,45 @@ function resetPref(){
   Services.prefs.deleteBranch("dom.ipc.plugins.enabled.npietab2.dll");
   Services.prefs.deleteBranch("dom.ipc.plugins.enabled.npcoralietab.dll");
 }
-function askUser(window,find1,find2) {
+function askUser(window,finds) {
+  if(finds.length == 0)
+    return false;
   var Strings = Services.strings.createBundle("chrome://coba/locale/global.properties");
   var prompter = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
-  var dummy = { value: false };
+  var always = { value: true };
   var flag = prompter.BUTTON_POS_0 * prompter.BUTTON_TITLE_IS_STRING  +  
              prompter.BUTTON_POS_1 * prompter.BUTTON_TITLE_CANCEL;  
   var text = Strings.GetStringFromName("coba.conflict.askuser.string1");
-  if(find1)
-    text += Strings.GetStringFromName("coba.conflict.askuser.string2");
-  if(find1 && find2)
-    text += Strings.GetStringFromName("coba.conflict.askuser.string3");
-  if(find2)
-    text += Strings.GetStringFromName("coba.conflict.askuser.string4");
-  text += Strings.GetStringFromName("coba.conflict.askuser.string5");
-  return prompter.confirmEx(window,
-          Strings.GetStringFromName("coba.conflict.askuser.string6"), text, flag,
-          "    "+Strings.GetStringFromName("coba.conflict.askuser.string7")+"    ", null, null, null, dummy) == 0;    // 0=="打开附加组件管理器" button
+  for (var i = 0; i < finds.length ; i++) {
+    text += " - ";
+    text += IDS[finds[i]+1];
+    text += "\n";
+  }
+  var ret = prompter.confirmEx(null,
+          Strings.GetStringFromName("coba.conflict.askuser.string2"), text, flag,
+          "    "+Strings.GetStringFromName("coba.conflict.askuser.string3")+"    ", null, null, Strings.GetStringFromName("coba.conflict.askuser.string4"), always) == 0;    // 0=="打开附加组件管理器" button
+  Services.prefs.setBoolPref("extensions.coba.conflict.warning", always.value);
+  return ret;
 }
 
 function checkConflict(window){
-  if(Services.prefs.getBoolPref("extensions.coba.conflict.warning", false))
+  window.setTimeout(function(){
+  if(!Services.prefs.getBoolPref("extensions.coba.conflict.warning", true))
     return;
-	AddonManager.getAddonByID("coralietab@mozdev.org", function(addon) { // IE Tab +
-	  var find1 = addon && !addon.userDisabled;
-  	AddonManager.getAddonByID("ietab@ip.cn", function(addon) { // IE Tab Plus
-  	  var find2 = addon && !addon.userDisabled;
-  	  if(find1 || find2){
-        Services.prefs.setBoolPref("extensions.coba.conflict.warning", true);
-  	    if(askUser(window,find1 ,find2)){
- 	        window.BrowserOpenAddonsMgr(); 
-  	    } 	    
-  	  }
-  	});
+  AddonManager.getAllAddons(function(addons) {
+    var finds = [];
+    for (let num in addons) {
+      var addon = addons[num];
+      let index = IDS.indexOf(addon.id);
+      if (index > -1 && !addon.userDisabled){
+        finds.push(index);
+      }
+    }
+    if(askUser(window,finds)){
+      window.BrowserOpenAddonsMgr(); 
+    } 	    
 	});
+},1000);
 }
 
 var watchFactoryClass = function() {
