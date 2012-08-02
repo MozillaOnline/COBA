@@ -29,6 +29,7 @@ const _COBA_WATCH_CONTRACTID = "@mozilla.com.cn/coba;1";
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
+var Strings = Services.strings.createBundle("chrome://coba/locale/global.properties");
 
 let IDS = ["coralietab@mozdev.org",
              "IE Tab +",
@@ -39,7 +40,7 @@ let IDS = ["coralietab@mozdev.org",
            "{1BC9BA34-1EED-42ca-A505-6D2F1A935BBB}",
              "IE Tab 2",
            "fireie@fireie.org",
-             "Fire IE",
+             Strings.GetStringFromName("coba.conflict.askuser.fireie"),
           ];
 
 ["LOG", "WARN", "ERROR"].forEach(function(aName) {
@@ -125,7 +126,6 @@ var prefOberver = {
   observe: function(aSubject, aTopic, aPrefName) {
     if (aTopic != "nsPref:changed")
       return;
-    return;
     if(Services.prefs.getBoolPref("dom.ipc.plugins.enabled.npietab.dll", true))
       Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npietab.dll", false);
     if(Services.prefs.getBoolPref("dom.ipc.plugins.enabled.npietab2.dll", true))
@@ -136,25 +136,24 @@ var prefOberver = {
   
 }
 function setPref(){
-  Services.prefs.addObserver("dom.ipc.plugins.enabled.npietab.dll", prefOberver, true);
-  Services.prefs.addObserver("dom.ipc.plugins.enabled.npietab2.dll", prefOberver, true);
-  Services.prefs.addObserver("dom.ipc.plugins.enabled.npcoralietab.dll", prefOberver, true);
-  Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npietab.dll", false);
-  Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npietab2.dll", false);
-  Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npcoralietab.dll", false);
+//  Services.prefs.addObserver("dom.ipc.plugins.enabled.npietab.dll", prefOberver, true);
+//  Services.prefs.addObserver("dom.ipc.plugins.enabled.npietab2.dll", prefOberver, true);
+//  Services.prefs.addObserver("dom.ipc.plugins.enabled.npcoralietab.dll", prefOberver, true);
+//  Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npietab.dll", false);
+//  Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npietab2.dll", false);
+//  Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npcoralietab.dll", false);
 }
 function resetPref(){
-  Services.prefs.removeObserver("dom.ipc.plugins.enabled.npietab.dll", prefOberver);
-  Services.prefs.removeObserver("dom.ipc.plugins.enabled.npietab2.dll", prefOberver);
-  Services.prefs.removeObserver("dom.ipc.plugins.enabled.npcoralietab.dll", prefOberver);
-  Services.prefs.deleteBranch("dom.ipc.plugins.enabled.npietab.dll");
-  Services.prefs.deleteBranch("dom.ipc.plugins.enabled.npietab2.dll");
-  Services.prefs.deleteBranch("dom.ipc.plugins.enabled.npcoralietab.dll");
+//  Services.prefs.removeObserver("dom.ipc.plugins.enabled.npietab.dll", prefOberver);
+//  Services.prefs.removeObserver("dom.ipc.plugins.enabled.npietab2.dll", prefOberver);
+//  Services.prefs.removeObserver("dom.ipc.plugins.enabled.npcoralietab.dll", prefOberver);
+//  Services.prefs.deleteBranch("dom.ipc.plugins.enabled.npietab.dll");
+//  Services.prefs.deleteBranch("dom.ipc.plugins.enabled.npietab2.dll");
+//  Services.prefs.deleteBranch("dom.ipc.plugins.enabled.npcoralietab.dll");
 }
 function askUser(window,finds) {
   if(finds.length == 0)
     return false;
-  var Strings = Services.strings.createBundle("chrome://coba/locale/global.properties");
   var prompter = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
   var always = { value: true };
   var flag = prompter.BUTTON_POS_0 * prompter.BUTTON_TITLE_IS_STRING  +  
@@ -213,8 +212,11 @@ watchFactoryClass.prototype = {
       Services.obs.addObserver(this, "sessionstore-windows-restored", true);
       break;
     case "domwindowopened":
+      var window = aSubject;
+      this.window = window;
+      if(window.location.href != "chrome://browser/content/browser.xul")
+        return;
       Services.obs.removeObserver(this, "domwindowopened");
-      this.window = aSubject;
       break;
     case "sessionstore-windows-restored":
       Services.obs.removeObserver(this, "sessionstore-windows-restored");

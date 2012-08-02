@@ -19,5 +19,8 @@ pref("extensions.coba.official.allwaysupdate", true);
 pref("extensions.coba.official.filterlist", " (http|https)://*.icbc.com.cn/* (http|https)://*.cmbchina.com/* (http|https)://*.abchina.com/* (http|https):/*.ecitic.com/* (http|https)://*.cebbank.com/* (http|https)://*.boc.cn/* (http|https)://*.bankcomm.com/* (http|https)://*.95559.com.cn/* (http|https)://*.sdb.com.cn/* (http|https)://*.hxb.com.cn/* (http|https)://*.psbc.com/* (http|https)://*.bankofbeijing.com.cn/* https://cashier.alipay.com/standard/gateway/ebankPay.htm?* https://cashier.alipay.com/standard/gateway/ebankDeposit.htm?* http://*.360buy.com/purchase/succeed_online.aspx?* http://payment.360buy.com/bank/payment_orderselect.aspx?* (http|https)?://*.tenpay.com/* (http|https)?://*.99bill.com/* (http|https)?://*.dangdang.com (http|https)?://www.amazon.cn/gp/buy/* (http|https)?://www.amazon.cn/gp/css/ep/repay-pending-transactions.html?*  https://shopping.vancl.com/shoppingcar/* https://secure.newegg.com.cn/Order/OrderDetail.aspx?* https://secure.newegg.com.cn/Order/ChangeSOThankYou.aspx?* https://secure.newegg.com.cn/shopping/CheckOut.aspx*");
 
 pref("extensions.coba.conflict.warning", true);
+pref("dom.ipc.plugins.enabled.npietab.dll", false);
+pref("dom.ipc.plugins.enabled.npietab2.dll", false);
+pref("dom.ipc.plugins.enabled.npcoralietab.dll", false);
 
 
