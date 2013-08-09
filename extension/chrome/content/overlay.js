@@ -254,7 +254,10 @@ COBA.updateUrlBar = function() {
   }
 
   // 更新收藏状态(星星按钮黄色时表示该页面已收藏)
-	PlacesStarButton.updateState();
+  if (window.PlacesStarButton)
+    PlacesStarButton.updateState();
+  else
+    BookmarkingUI.updateStarState();
 }
 
 /** 改变页面元素启用状态*/
@@ -321,7 +324,9 @@ COBA.updateInterface = function() {
   COBA.updateStopReloadButtons();
   COBA.updateSecureLockIcon();
 
-	COBA.updateUrlBar();
+  if (!!document.getElementById("urlbar-container")) {
+    COBA.updateUrlBar();
+  }
 //  COBA.updateToolBar();
 }
 
@@ -639,7 +644,10 @@ COBA.hookCodeAll = function() {
   //hook functions
   COBA.hookCode("gFindBar._onBrowserKeypress", "this._useTypeAheadFind &&", "$& !COBA.isIEEngine() &&"); // IE内核时不使用Firefox的查找条, $&指代被替换的代码
   COBA.hookCode("PlacesCommandHook.bookmarkPage", "aBrowser.currentURI", "makeURI(COBA.getActualUrl($&.spec))"); // 添加到收藏夹时获取实际URL
-	COBA.hookCode("PlacesStarButton.updateState", /(gBrowser|getBrowser\(\))\.currentURI/g, "makeURI(COBA.getActualUrl($&.spec))"); // 用IE内核浏览网站时，在地址栏中正确显示收藏状态(星星按钮黄色时表示该页面已收藏)
+  if (window.PlacesStarButton)
+    COBA.hookCode("PlacesStarButton.updateState" , /(gBrowser|getBrowser\(\))\.currentURI/g, "makeURI(COBA.getActualUrl($&.spec))"); // 用IE内核浏览网站时，在地址栏中正确显示收藏状态(星星按钮黄色时表示该页面已收藏)
+  else
+    COBA.hookCode("BookmarkingUI.updateStarState", /(gBrowser|getBrowser\(\))\.currentURI/g, "makeURI(COBA.getActualUrl($&.spec))"); // 用IE内核浏览网站时，在地址栏中正确显示收藏状态(星星按钮黄色时表示该页面已收藏)
   COBA.hookCode("gBrowser.addTab", "return t;", "COBA.hookBrowserGetter(t.linkedBrowser); $&");
   COBA.hookCode("gBrowser.setTabTitle", "if (browser.currentURI.spec) {", "$& if (browser.currentURI.spec.indexOf(COBA.containerUrl) == 0) return;"); // 取消原有的Tab标题文字设置
   COBA.hookCode("getShortcutOrURI", /return (\S+);/g, "return COBA.getHandledURL($1);"); // 访问新的URL
@@ -707,12 +715,66 @@ COBA.removeEventAll = function() {
   Services.obs.removeObserver(COBA.switchToIEByDoc, "COBA-swith-to-ie");
 }
 COBA.init = function() {
-	COBA.removeEventListener(window, "load", COBA.init);
-	setTimeout(function(){
-	  if(gBrowser.currentURI.spec != "about:blank")
-	    return;
+  COBA.removeEventListener(window, "load", COBA.init);
+  if (!!document.getElementById("urlbar-container")) {
+    COBA.initNow();
+  } else {
+    COBA.initLater();
+  }
+}
+COBA.initDone = false;
+
+COBA.initLater = function() {
+  var self = COBA;
+  self.initDone = false;
+  var navbar = document.getElementById("nav-bar");
+  if (!navbar)
+    return;
+
+  if (window.MutationObserver) {
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function (mutation) {
+        if (mutation.type != 'attributes' ||
+            mutation.target != navbar ||
+            mutation.attributeName != 'currentset') {
+          return;
+        }
+
+        if (!!document.getElementById("urlbar-container")) {
+          self.initNow();
+        }
+
+      });
+    });
+
+    var config = {
+      attributes: true,
+      attributeOldValue: true,
+      attributeFilter: ['currentset']
+    };
+    observer.observe(navbar, config);
+  } else {
+    navbar.addEventListener("DOMAttrModified",function(evt) {
+      if (evt.type == "DOMAttrModified" &&
+          evt.attrName == "currentset") {
+        if (!!document.getElementById("urlbar-container")) {
+          self.initNow();
+        }
+      }
+    }, false);
+  }
+
+}
+
+COBA.initNow = function() {
+  if (COBA.initDone)
+    return;
+  COBA.initDone = true;
+  setTimeout(function() {
+    if (gBrowser.currentURI.spec != "about:blank")
+      return;
     gBrowser.contentDocument.documentElement.focus();
-  	window.focusAndSelectUrlBar()
+    window.focusAndSelectUrlBar()
   },800)
 
   /**
