@@ -31,7 +31,7 @@ Cu.import("resource://gre/modules/NetUtil.jsm")
 var tracking_random = Math.random();
 function tracking(type){
   try{
-    var _trackurl = 'http://addons.g-fox.cn/coba.gif';
+    var _trackurl = 'http://img.g-fox.cn/coba.gif';
     var _uuidprf = 'extensions.coba.uuid';
     var uuid = Application.prefs.getValue(_uuidprf,"");
     if(uuid == ""){

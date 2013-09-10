@@ -48,7 +48,7 @@ COBA.track = function(data) {
   if (!data) {
     return;
   }
-  var _trackurl = 'http://addons.g-fox.cn/coba.gif';
+  var _trackurl = 'http://img.g-fox.cn/coba.gif';
   var uuid = COBA.getUUID();
   var image = new Image();
   image.src = _trackurl + '?r=' +  Math.random()
