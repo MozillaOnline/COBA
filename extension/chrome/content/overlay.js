@@ -34,6 +34,29 @@ Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://coba/cobaUtils.jsm");
 let Strings = cobaUtils.Strings;
 
+COBA.getUUID = function() {
+  var _uuidprf = 'extensions.coba.uuid';
+  var uuid = Application.prefs.getValue(_uuidprf,"");
+  if(uuid == ""){
+		var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
+		uuid = uuidgen.generateUUID().number;
+		Application.prefs.setValue(_uuidprf,uuid);
+  }
+  return uuid;
+}
+COBA.track = function(data) {
+  if (!data) {
+    return;
+  }
+  var _trackurl = 'http://addons.g-fox.cn/coba.gif';
+  var uuid = COBA.getUUID();
+  var image = new Image();
+  image.src = _trackurl + '?r=' +  Math.random()
+            + '&uuid=' + uuid
+            + '&' + data.key + '=' + data.value
+            ;
+}
+
 /** 将URL转换为IE Tab URL */
 COBA.getCOBAURL = function(url) {
   if (COBA.startsWith(url, COBA.containerUrl)) return url;
@@ -830,11 +853,22 @@ COBA.setupUrlBar = function() {
   let showUrlBarLabel = Services.prefs.getBoolPref("extensions.coba.showUrlBarLabel", true);
   document.getElementById("coba-urlbar-switch-label").hidden = !showUrlBarLabel;
   var btn_identity = document.getElementById("identity-box");
-  btn_identity && btn_identity.addEventListener("click", COBA.showPanel, false);
+  btn_identity && btn_identity.addEventListener("click", COBA.clickFavIcon, false);
   var btn_urlbar_icon = document.getElementById("coba-urlbar-icon");
-  btn_urlbar_icon && btn_urlbar_icon.addEventListener("click", COBA.showPanel, false);
+  btn_urlbar_icon && btn_urlbar_icon.addEventListener("click", COBA.clickUrlbarIcon, false);
 }
 
+
+
+COBA.clickFavIcon = function (e) {
+  COBA.track({key: 'click', value: 'favicon'})
+  COBA.showPanel(e)
+}
+
+COBA.clickUrlbarIcon = function (e) {
+  COBA.track({key: 'click', value: 'urlbar'})
+  COBA.showPanel(e)
+}
 
 // identity-box事件
 COBA.showPanel = function (e) {

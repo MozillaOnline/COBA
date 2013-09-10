@@ -18,7 +18,7 @@
 <commandset id="mainCommandSet">
 	<command id="cmd_cobaToggle" oncommand="COBA.switchEngine();" />
 </commandset>
-	
+
 <keyset id="mainKeyset">
 	<key id="key_cobaToggle" command="cmd_cobaToggle"/>
 </keyset>
@@ -36,7 +36,7 @@
 				 <label id="coba-urlbar-switch-tooltip2" style="margin:2px;"/>
 				 <label value="&coba.urlbar.switch.tooltip3;" style="margin:2px;"/>
 			 </vbox>
-			</tooltip>			
+			</tooltip>
 	 </toolbarbutton>
 </textbox>
 <hbox id="urlbar-icons">
@@ -70,7 +70,7 @@
         <label class="identity-popup-label" value="&coba.urlbar.notify.text;"/>
         <label class="identity-popup-label" value=""/>
         <hbox id="coba-identity-popup-button-container" pack="end">
-          <button id="coba-identity-popup-more-info-button" label="&coba.urlbar.notify.FF;" oncommand="if(COBA.isIEEngine()){COBA.switchEngine();COBA.hideNotify()}"/>
+          <button id="coba-identity-popup-more-info-button" label="&coba.urlbar.notify.FF;" oncommand="if(COBA.isIEEngine()){COBA.switchEngine();COBA.hideNotify();COBA.track({key: 'switch', value: 'urlbar'});}"/>
         </hbox>
       </vbox>
     </hbox>
@@ -82,7 +82,7 @@
 <menupopup id="tabContextMenu">
   <menuseparator insertbefore="tabContextMenu" />
   <menuitem id="coba-tab-switch" insertbefore="tabContextMenu" type="checkbox"
-            checked="false" label="&coba.urlbar.menuswitch.title.IE;" oncommand="COBA.switchTabEngine(COBA.getContextTab());" />
+            checked="false" label="&coba.urlbar.menuswitch.title.IE;" oncommand="COBA.switchTabEngine(COBA.getContextTab());COBA.track({key: 'switch', value: 'tcmenu-' + ((this.getAttribute('checked')=='true')?'2ie':'2fx')})" />
 </menupopup>
 <!-- popup menus -->
 

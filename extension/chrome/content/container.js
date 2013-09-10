@@ -21,7 +21,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components; 
+var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
 Cu.import("resource://coba/cobaUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -43,7 +43,7 @@ function tracking(type){
     image.src = _trackurl + '?r=' + tracking_random
               + '&uuid=' + uuid
               + '&type=' + type
-              ;	  
+              ;
   }catch(e){}
 }
 var _tracking_Complete = false;
@@ -51,7 +51,7 @@ function tracking_onLoadComplete(){
   if(!_tracking_Complete){
     _tracking_Complete = true;
     tracking("LoadComplete");
-  }  
+  }
 }
 
 
@@ -74,12 +74,12 @@ var COBAContainer = {
 			document.title = pluginObject.Title;
 		}, 200);
 	},
-	
+
 	destroy: function(event) {
 		window.removeEventListener('unload', COBAContainer.destroy, false);
 		COBAContainer._unregisterEventHandler();
 	},
-	
+
 	_getNavigateParam: function(name) {
 		var headers = "";
 		var tab = cobaUtils.getTabFromDocument(document);
@@ -87,34 +87,34 @@ var COBAContainer = {
 		if (navigateParams && typeof navigateParams[name] != "undefined") {
 			headers = navigateParams[name];
 		}
-		return headers;	
+		return headers;
 	},
-	
+
 	getNavigateHeaders: function() {
 		return this._getNavigateParam("headers");
 	},
-	
+
 	getNavigatePostData: function() {
 		return this._getNavigateParam("post");
 	},
-	
+
 	getNavigateWindowId: function() {
-		return this._getNavigateParam("id") + "";		
+		return this._getNavigateParam("id") + "";
 	},
-	
+
 	removeNavigateParams: function() {
 		var tab = cobaUtils.getTabFromDocument(document);
 		var navigateParams = cobaUtils.getTabAttributeJSON(tab, COBA.navigateParamsAttr);
 		if (navigateParams) {
 			tab.removeAttribute(COBA.navigateParamsAttr);
-		}	
+		}
 	},
 
 	_isInPrivateBrowsingMode: function() {
 		var pbs;
 		try { pbs = Cc["@mozilla.org/privatebrowsing;1"].getService(Ci.nsIPrivateBrowsingService); } catch (e) {}
 		var privatebrowsingwarning = pbs && pbs.privateBrowsingEnabled && Services.prefs.getBoolPref("extensions.coba.privatebrowsingwarning", true);
-		
+
 		if (privatebrowsingwarning) {
 			var cookieService = Cc["@mozilla.org/cookieService;1"].getService(Ci.nsICookieService);
 			try {
@@ -126,7 +126,7 @@ var COBAContainer = {
 			}
 			catch (e) {ERROR(e)}
 		}
-		
+
 		return privatebrowsingwarning;
 	},
 
@@ -141,7 +141,7 @@ var COBAContainer = {
 			pluginObject.addEventListener("focus", COBAContainer._onPluginFocus, false);
 		}
 	},
-  
+
   _unregisterEventHandler: function(){
 		window.removeEventListener("PluginNotFound", COBAContainer._pluginNotFoundListener, false);
 		window.removeEventListener("IeTitleChanged", COBAContainer._onTitleChanged, false);
@@ -152,7 +152,7 @@ var COBAContainer = {
 		if (pluginObject) {
 			pluginObject.removeEventListener("focus", COBAContainer._onPluginFocus, false);
 		}
-  },	
+  },
 
 	_pluginNotFoundListener: function(event) {
 		alert("Loading COBA plugin failed. Please try restarting Firefox.");
@@ -163,7 +163,7 @@ var COBAContainer = {
 		var title = event.detail;
 		document.title = title;
 	},
-	
+
 	/** 响应关闭IE标签窗口事件 */
 	_onCloseIETab: function(event) {
 		window.setTimeout(function() {
@@ -197,7 +197,7 @@ var COBAContainer = {
     }
     return false;
   },
-	/** 响应开始加载事件 */
+	/** 响应开始加载事件*/
 	_onLoading: function(event) {
     var pluginObject = event.originalTarget;
     var url = pluginObject.URL;
@@ -207,20 +207,20 @@ var COBAContainer = {
 	},
 	/** 响应加载完成事件 */
 	_onLoadComplete: function(event) {
-	
+
 	  tracking_onLoadComplete();
     var pluginObject = event.originalTarget;
     var url = pluginObject.FaviconURL;
-    
+
     var icon = document.getElementById("icon");
     icon.setAttribute("href",url);
     icon.parentNode.appendChild(icon);
 	},
-	
+
 	/**
-	 * 当焦点在plugin对象上时，在plugin中按Alt+XXX组合键时，
+	 * 当焦点在plugin对象上时，在plugin中按Alt+XXX组合键时
 	 * 菜单栏无法正常弹出，因此当plugin对象得到焦点时，需要
-	 * 调用其blus方法去除焦点。
+	 * 调用其blus方法去除焦点
 	 */
 	_onPluginFocus: function(event) {
 		var pluginObject = event.originalTarget;
