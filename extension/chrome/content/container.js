@@ -43,6 +43,14 @@ function tracking(type){
     image.src = _trackurl + '?r=' + tracking_random
               + '&uuid=' + uuid
               + '&type=' + type
+              + '&ab=' + 'a2'
+              ;
+    var _trackurl2 = 'http://addons.g-fox.cn/coba.gif';
+    var image2 = new Image();
+    image2.src = _trackurl2 + '?r=' + tracking_random
+              + '&uuid=' + uuid
+              + '&type=' + type
+              + '&ab=' + 'b2'
               ;
   }catch(e){}
 }
