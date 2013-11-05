@@ -35,3 +35,9 @@ treechildren::-moz-tree-checkbox(checked) {
   list-style-image: url("chrome://coba/skin/identity.png");
   -moz-image-region: rect(0px, 64px, 64px, 0px);
 }
+#coba-identity-popup-content-box > .identity-popup-label {
+  padding-bottom: 18px;
+}
+#coba-identity-popup-always-ie-checkbox {
+  -moz-padding-start: 15px;
+}

@@ -61,14 +61,13 @@
     <menuitem label="&coba.settings.title;" oncommand="COBA.openOptionsDialog()"/>
   </menupopup>
 
-  <panel id="coba-identity-popup" type="arrow" hidden1="true" noautofocus="true" onpopupshown="document.getElementById('coba-identity-popup-more-info-button').focus();" level="top">
+  <panel id="coba-identity-popup" type="arrow" hidden1="true" noautofocus="true" onpopupshown="COBA.identityPopupShown();" level="top">
     <hbox id="coba-identity-popup-container" align="top">
       <image id="coba-identity-popup-icon"/>
       <vbox id="coba-identity-popup-content-box">
         <label class="identity-popup-label" value="&coba.urlbar.notify.title;"/>
-        <label class="identity-popup-label" value=""/>
         <label class="identity-popup-label" value="&coba.urlbar.notify.text;"/>
-        <label class="identity-popup-label" value=""/>
+        <checkbox id="coba-identity-popup-always-ie-checkbox" class="identity-popup-label" label="&coba.urlbar.notify.alwaysIE;" oncommand="COBA.toggleAlwaysUseIE();"/>
         <hbox id="coba-identity-popup-button-container" pack="end">
           <button id="coba-identity-popup-more-info-button" label="&coba.urlbar.notify.FF;" oncommand="if(COBA.isIEEngine()){COBA.switchEngine();COBA.hideNotify();COBA.track({key: 'switch', value: 'urlbar'});}"/>
         </hbox>
@@ -81,8 +80,9 @@
 <!-- tab context menu -->
 <menupopup id="tabContextMenu">
   <menuseparator insertbefore="tabContextMenu" />
-  <menuitem id="coba-tab-switch" insertbefore="tabContextMenu" type="checkbox"
-            checked="false" label="&coba.urlbar.menuswitch.title.IE;" oncommand="COBA.switchTabEngine(COBA.getContextTab());COBA.track({key: 'switch', value: 'tcmenu-' + ((this.getAttribute('checked')=='true')?'2ie':'2fx')})" />
+  <menuitem id="coba-tab-switch" insertbefore="tabContextMenu"
+            label="&coba.urlbar.menuswitch.title.IE;" data-label-ie="&coba.urlbar.menuswitch.title.IE;" data-label-fx="&coba.urlbar.menuswitch.title.Fx;"
+            oncommand="COBA.track({key: 'switch', value: 'tcmenu-' + (COBA.switchTabEngine(COBA.getContextTab())?'2ie':'2fx')})" />
 </menupopup>
 <!-- popup menus -->
 

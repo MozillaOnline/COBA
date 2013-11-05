@@ -24,7 +24,7 @@
 /**
  * @namespace
  */
-var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components; 
+var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -110,18 +110,18 @@ COBA.setOptions = function (quiet) {
 
 COBA.getPrefOfficialFilterList = function (def) {
   var s = "";
-  if (def) 
+  if (def)
     s = COBA.getDefaultStrPref("extensions.coba.official.filterlist", null);
-  else 
+  else
     s = Services.prefs.getCharPref("extensions.coba.official.filterlist", null);
   return (s ? s.split(" ") : []);
 }
 
 COBA.getPrefFilterList = function (def) {
   var s = "";
-  if (def) 
+  if (def)
     s = COBA.getDefaultStrPref("extensions.coba.filterlist", null);
-  else 
+  else
     s = Services.prefs.getCharPref("extensions.coba.filterlist", null);
   return (s ? s.split(" ") : []);
 }
@@ -173,7 +173,6 @@ COBA.initFilterList = function (def) {
     if (list[i] != "") {
       var item = list[i].split("\b");
       var rule = item[0];
-      if (!/^\/(.*)\/$/.exec(rule)) rule = rule.replace(/\/$/, "/*");
       var enabled = (item.length == 1);
       COBA.addFilterRule(rule, enabled);
     }
@@ -189,7 +188,6 @@ COBA.initOfficialFilterList = function (def) {
     if (list[i] != "") {
       var item = list[i].split("\b");
       var rule = item[0];
-      if (!/^\/(.*)\/$/.exec(rule)) rule = rule.replace(/\/$/, "/*");
       var enabled = (item.length == 1);
       COBA.addOfficialFilterRule(rule, enabled);
     }
@@ -201,7 +199,7 @@ COBA.initDialog = function () {
   document.getElementById('filtercbx').checked = Services.prefs.getBoolPref("extensions.coba.filter", true);
   //
   COBA.initFilterList(false);
-  // add current tab's url 
+  // add current tab's url
   var newurl = (window.arguments ? window.arguments[0] : ""); //get CurrentTab's URL
   document.getElementById('urlbox').value = (COBA.startsWith(newurl, "about:") ? "" : newurl);
   document.getElementById('urlbox').select();
@@ -302,9 +300,9 @@ COBA.updateIECompatMode = function () {
   wrk.create(wrk.ROOT_KEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION", wrk.ACCESS_ALL);
 
   var value = 7000;
-  if (mode == "ie8mode") 
+  if (mode == "ie8mode")
     value = 8000;
-  else if (mode == "ie9mode") 
+  else if (mode == "ie9mode")
     value = 9000;
 
   wrk.writeIntValue("firefox.exe", value);
@@ -545,7 +543,7 @@ COBA.removeDEP = function () {
       var process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
       process.init(file);
       var path = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
-    
+
       path.append("plugin-container.exe");
       process.run(false, [path.path], 1);
     } catch (e) {

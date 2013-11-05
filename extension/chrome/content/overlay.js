@@ -138,6 +138,7 @@ COBA.isIEEngine = function(aTab) {
  *  通过设置不同的URL实现切换内核的功能。
  *  使用IE内核时，将URL转换为ie tab URL再访问；
  *  使用Firefox内核时，不需转换直接访问。
+ *  返回一个表示是否切换至 IE 模式的 bool
  */
 COBA.switchTabEngine = function(aTab) {
   if (aTab && aTab.localName == "tab") {
@@ -164,7 +165,10 @@ COBA.switchTabEngine = function(aTab) {
       url = COBA.getCOBAURL(url);
     }
     if (aTab.linkedBrowser && aTab.linkedBrowser.currentURI.spec != url) aTab.linkedBrowser.loadURI(url);
+
+    return isIEEngineAfterSwitch;
   }
+  return false;
 }
 
 COBA.setUrlBarSwitchButtonStatus = function(isIEEngine) {
@@ -207,7 +211,11 @@ COBA.updateTabMenu = function() {
   let urlbarButton = document.getElementById("coba-urlbar-switch");
   let menu = document.getElementById("coba-tab-switch");
   if (urlbarButton && menu) {
-    menu.setAttribute("checked", (COBA.isIEEngine(COBA.getContextTab()) ? "true" : "false"));
+    if (COBA.isIEEngine(COBA.getContextTab())) {
+      menu.label = menu.getAttribute("data-label-fx");
+    } else {
+      menu.label = menu.getAttribute("data-label-ie");
+    }
   }
 }
 
@@ -936,6 +944,55 @@ COBA.Observer = {
       this._branch.removeObserver("", this);
     }
   }
+};
+
+COBA.identityPopupShown = function() {
+  document.getElementById('coba-identity-popup-more-info-button').focus();
+  COBA.checkAlwaysUseIE();
+};
+
+COBA.checkAlwaysUseIE = function() {
+  /* anything to consider before using getActualUrl ? */
+  var url = COBA.getActualUrl(gBrowser.currentURI.spec);
+  var list = "";
+  try {
+    list = Services.prefs.getCharPref("extensions.coba.filterlist");
+  } catch(e) {};
+  list = list.split(" ");
+  var enabledIndex = list.indexOf(url);
+  var checkbox = document.getElementById("coba-identity-popup-always-ie-checkbox");
+
+  checkbox.checked = (enabledIndex > -1);
+};
+
+COBA.toggleAlwaysUseIE = function() {
+  var url = COBA.getActualUrl(gBrowser.currentURI.spec);
+  var list = "";
+  try {
+    list = Services.prefs.getCharPref("extensions.coba.filterlist");
+  } catch(e) {};
+  list = list.split(" ");
+  var disabledIndex = list.indexOf(url + "\b");
+  var enabledIndex = list.indexOf(url);
+  var checkbox = document.getElementById("coba-identity-popup-always-ie-checkbox");
+
+  if (checkbox.checked) {
+    if (disabledIndex > -1) {
+      list.splice(disabledIndex, 1, url);
+    } else if (enabledIndex == -1) {
+      list.push(url);
+    }
+    list.sort();
+
+    COBA.track({key: "always", value: encodeURIComponent(url.split("?")[0])});
+  } else {
+    if (enabledIndex > -1) {
+      list.splice(enabledIndex, 1);
+    }
+  }
+  try {
+    Services.prefs.setCharPref("extensions.coba.filterlist", list.join(" "));
+  } catch(e) {};
 };
 
 window.addEventListener("load", COBA.init, false);

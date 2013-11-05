@@ -191,7 +191,7 @@ var COBAContainer = {
        m[1] = (m[1] ? m[1].replace(/\./g, "\\.").replace(/\?/g, "[^\\/]?").replace(/\*/g, "[^\\/]*") : "");
        m[2] = (m[2] ? m[2].replace(/\./g, "\\.").replace(/\+/g, "\\+").replace(/\?/g, "\\?").replace(/\*/g, ".*") : "");
        pattern = m[1] + m[2];
-       pattern = "^" + pattern.replace(/\/$/, "\/.*") + "$";
+       pattern = "^" + pattern + "$";
     }
     var reg = new RegExp(pattern.toLowerCase());
     return (reg.test(url.toLowerCase()));
