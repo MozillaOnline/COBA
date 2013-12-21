@@ -11,9 +11,9 @@ namespace HttpMonitor
 		HttpMonitorStartPolicy;
 
 	/** 这个类在coral ietab中用于过滤广告http请求，我们没有进行过滤，所以接口不做处理*/
-	class HttpMonitorAPP : public PassthroughAPP::CInternetProtocol<HttpMonitorStartPolicy>
+	class HttpMonitorAPP : public PassthroughAPP::CInternetProtocol<HttpMonitorStartPolicy, CComMultiThreadModel>
 	{
-		typedef PassthroughAPP::CInternetProtocol<HttpMonitorStartPolicy> BaseClass;
+		typedef PassthroughAPP::CInternetProtocol<HttpMonitorStartPolicy, CComMultiThreadModel> BaseClass;
 
 	public:
 
