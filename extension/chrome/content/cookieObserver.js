@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Fire-IE.  If not, see <http://www.gnu.org/licenses/>.
 */
-var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components; 
+var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
 Cu.import("resource://coba/cobaUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -30,7 +30,7 @@ if (typeof(COBA) == "undefined") {
 
 /**
  * http://forums.mozillazine.org/viewtopic.php?f=23&t=2059667
- * anfilat2: 
+ * anfilat2:
  * ctypes.winapi_abi works in Firefox 32bit version only and it don't works in
  * 64bit.
  * ctypes.default_abi is more universal, but don't works in 32bit callback functions.
@@ -71,8 +71,8 @@ COBA.IECookieManager = {
      * http://baidu.com才能识别
      */
     let url = 'http://' + hostname + cookie2.path;
-    let cookieData = cookie2.name + "=" + decodeURI(cookie2.value) +
-      "; domain=" + cookie2.host + 
+    let cookieData = cookie2.name + "=" + cookie2.value +
+      "; domain=" + cookie2.host +
       "; path=" + cookie2.path;
     if (cookie2.expires > 1) {
       cookieData += "; expires=" + this.getExpiresString(cookie2.expires);
@@ -83,11 +83,11 @@ COBA.IECookieManager = {
     }
     return ret;
   },
-  
+
   deleteCookie: function(cookie2) {
     throw "Not implemented!";
   },
-  
+
   getExpiresString: function(expiresInSeconds) {
     // Convert expires seconds to date string of the format "Tue, 28 Feb 2012 17:14:26 GMT"
     let dateString = new Date(expiresInSeconds * 1000).toGMTString();
@@ -100,11 +100,11 @@ COBA.CookieObserver = {
   register: function() {
     Services.obs.addObserver(this, "cookie-changed", false);
   },
-  
+
   unregister: function() {
     Services.obs.removeObserver(this, "cookie-changed");
   },
-  
+
   // nsIObserver
   observe: function(subject, topic, data) {
     switch (topic) {
@@ -113,7 +113,7 @@ COBA.CookieObserver = {
         break;
       }
   },
-  
+
   onCookieChanged: function(subject, data) {
     let cookie = (subject instanceof Ci.nsICookie2) ? subject.QueryInterface(Ci.nsICookie2) : null;
     let cookieArray = (subject instanceof Ci.nsIArray) ? subject.QueryInterface(Ci.nsIArray) : null;
@@ -144,7 +144,7 @@ COBA.CookieObserver = {
         break;
     }
   },
-    
+
   logCookie: function(tag, cookie2) {
     /*
     cobaUtils.LOG('[logCookie ' + tag + "] host:" + cookie2.host + " path:" + cookie2.path +
