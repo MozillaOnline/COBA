@@ -30,6 +30,10 @@ Cu.import("resource://gre/modules/PlacesUtils.jsm")
 Cu.import("resource://gre/modules/NetUtil.jsm")
 var tracking_random = Math.random();
 function tracking(type){
+  var tracker = Components.classes["@mozilla.com.cn/tracking;1"];
+  if (!tracker || !tracker.getService().wrappedJSObject.ude) {
+    return;
+  }
   try{
     var _trackurl = 'http://img.g-fox.cn/coba.gif';
     var _uuidprf = 'extensions.coba.uuid';

@@ -48,6 +48,10 @@ COBA.track = function(data) {
   if (!data) {
     return;
   }
+  var tracker = Components.classes["@mozilla.com.cn/tracking;1"];
+  if (!tracker || !tracker.getService().wrappedJSObject.ude) {
+    return;
+  }
   var _trackurl = 'http://img.g-fox.cn/coba.gif';
   var uuid = COBA.getUUID();
   var image = new Image();
