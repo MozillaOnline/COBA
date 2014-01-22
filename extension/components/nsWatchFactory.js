@@ -204,7 +204,15 @@ watchFactoryClass.prototype = {
   observe: function (aSubject, aTopic, aData) {
     switch (aTopic) {
     case "profile-after-change":
-      updateFilter();
+      var autoUpdate;
+      try {
+        autoUpdate = Services.prefs.getBoolPref("extensions.coba.official.filter.update");
+      } catch (ex) {
+        autoUpdate = true;
+      }
+      if (autoUpdate) {
+        updateFilter();
+      }
       checkIECompatMode();
       setPref();
       Services.obs.addObserver(this, "quit-application", true);
