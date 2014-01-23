@@ -449,7 +449,6 @@ void FetchCookie(const CString& strUrl, const CString& strHeaders)
 	} 
 }
 
-/** @TODO 将strPost中的Content-Type和Content-Length信息移动到strHeaders中，而不是直接去除*/
 void CIEHostWindow::Navigate(const CString& strURL, const CString& strPost, const CString& strHeaders)
 {
 	m_strLoadingUrl = strURL;
@@ -472,12 +471,14 @@ void CIEHostWindow::Navigate(const CString& strURL, const CString& strPost, cons
 			{
 				// 去除postContent-Type和Content-Length这样的header信息
 				int pos = strPost.Find(_T("\r\n\r\n"));
+				vHeader = CString(vHeader) + strPost.Left(pos) + _T("\r\n");
 
 				CString strTrimed = strPost.Right(strPost.GetLength() - pos - 4);
 				int size = WideCharToMultiByte(CP_ACP, 0, strTrimed, -1, 0, 0, 0, 0);
 				char* szPostData = new char[size + 1];
 				WideCharToMultiByte(CP_ACP, 0, strTrimed, -1, szPostData, size, 0, 0);
 				FillSafeArray(vPost, szPostData);
+				delete [] szPostData;
 			}
 			m_ie.Navigate(strURL, &vFlags, &vTarget, &vPost, &vHeader);
 		}

@@ -53,33 +53,62 @@ let wininetDll = ctypes.open("Wininet.dll");
  */
 let InternetSetCookieW = wininetDll.declare('InternetSetCookieW',
     WinABI,
-    ctypes.int32_t,            // BOOL
-    ctypes.jschar.ptr,  // LPCTSTR lpszUrl
-    ctypes.int32_t,  // LPCTSTR lpszCookieName
-    ctypes.jschar.ptr   // LPCTSTR lpszCookieData
+    ctypes.int32_t, // BOOL
+    ctypes.jschar.ptr, // LPCTSTR lpszUrl
+    ctypes.int32_t, // LPCTSTR lpszCookieName
+    ctypes.jschar.ptr // LPCTSTR lpszCookieData
 );
 
+let InternetSetCookieExW = wininetDll.declare('InternetSetCookieExW',
+    WinABI,
+    ctypes.int32_t, // BOOL
+    ctypes.jschar.ptr, // LPCTSTR lpszUrl
+    ctypes.jschar.ptr, // LPCTSTR lpszCookieName
+    ctypes.jschar.ptr, // LPCTSTR lpszCookieData
+    ctypes.uint32_t, // DWORD dwFlags
+    ctypes.int32_t // DWORD_PTR dwReserved
+);
+
+const NULL = 0;
+const INTERNET_COOKIE_HTTPONLY = 0x00002000;
+
 COBA.IECookieManager = {
-  saveCookie: function(cookie2) {
+  saveCookie: function(cookie2, isPrivate) {
     let hostname = cookie2.host.trim();
-    // 去除hostname开头的“.”
-    if (hostname.substring(0, 1) == ".") {
+    // Strip off beginning dot in hostname
+    if (hostname.substring(0, 1) == ".")
+    {
       hostname = hostname.substring(1);
     }
-    /* URL格式必须正确, 否则无法成功设置Cookie。
-     * http://.baidu.com必须转换为
-     * http://baidu.com才能识别
+
+    /* The URL format must be correct or set cookie will fail
+     * http://.baidu.com must be transformed into
+     * http://baidu.com before it can be recognized
      */
-    let url = 'http://' + hostname + cookie2.path;
-    let cookieData = cookie2.name + "=" + cookie2.value +
-      "; domain=" + cookie2.host +
-      "; path=" + cookie2.path;
-    if (cookie2.expires > 1) {
+    let url = (cookie2.isSecure ? 'https://' : 'http://') + hostname + cookie2.path;
+    let cookieData = cookie2.name + "=" + cookie2.value + "; domain=" + cookie2.host + "; path=" + cookie2.path;
+    // Force the cookie to be session cookie if we synchronized it from private browsing windows
+    if (cookie2.expires > 0 && !isPrivate)
+    {
       cookieData += "; expires=" + this.getExpiresString(cookie2.expires);
     }
-    let ret = InternetSetCookieW(url, 0, cookieData);
-    if (!ret) {
-      cobaUtils.ERROR('InternetSetCookieW failed! url:' + url + ' data:' + cookieData);
+    if (cookie2.isSecure)
+    {
+      cookieData += "; secure";
+    }
+    if (cookie2.isHttpOnly)
+    {
+      cookieData +="; httponly";
+    }
+    let ret = InternetSetCookieW(url, NULL, cookieData);
+    if (!ret)
+    {
+      let ret = InternetSetCookieExW(url, null, cookieData, INTERNET_COOKIE_HTTPONLY, NULL);
+      if (!ret)
+      {
+        let errCode = ctypes.winLastError || 0;
+        Utils.LOG('InternetSetCookieExW failed with ERROR ' + errCode + ' url:' + url + ' data:' + cookieData);
+      }
     }
     return ret;
   },

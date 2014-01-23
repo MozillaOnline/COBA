@@ -182,7 +182,7 @@ var COBAContainer = {
 			window.close();
 		}, 100);
 	},
-  firefoxFilterList : ["https://unionpaysecure.com/b2c*"
+  firefoxFilterList : [
                       ],
   isMatchURL: function(url, pattern) {
     if ((!pattern) || (pattern.length==0)) return false;
