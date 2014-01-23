@@ -130,7 +130,6 @@ COBA.HttpObserver = {
   shouldFilter: function(url) {
     return !watcher.isCOBAURL(url)
          && !COBA.isFirefoxOnly(url)
-         && watcher.isFilterEnabled()
          && watcher.isMatchFilterList(url);
 	}
 }
