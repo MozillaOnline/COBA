@@ -201,15 +201,6 @@ COBA.setUrlBarSwitchButtonStatus = function(isIEEngine) {
   btn_urlbar_icon.setAttribute("hidden", (isIEEngine ? "false" : "true"));
 }
 
-// 工具栏按钮的状态与地址栏状态相同
-COBA.updateToolBar = function() {
-  let urlbarButton = document.getElementById("coba-urlbar-switch");
-  let toolbarButton = document.getElementById("coba-toolbar-palette-button");
-  if (urlbarButton && toolbarButton) {
-    toolbarButton.disabled = urlbarButton.disabled;
-    toolbarButton.setAttribute("engine", urlbarButton.getAttribute("engine"));
-  }
-}
 // Tab popmenu状态与地址栏状态相同
 COBA.updateTabMenu = function() {
   let urlbarButton = document.getElementById("coba-urlbar-switch");
@@ -370,7 +361,6 @@ COBA.updateInterface = function() {
   if (!!document.getElementById("urlbar-container")) {
     COBA.updateUrlBar();
   }
-//  COBA.updateToolBar();
 }
 
 /** 更新相关的界面*/
@@ -905,7 +895,7 @@ COBA.showPanel = function (e) {
 
 COBA.notify = function (ele) {
   var panel = document.getElementById("coba-identity-popup");
-  panel.openPopup(ele, "after_start", 15, 0, true, false);
+  panel.openPopup(ele);
 }
 
 COBA.hideNotify = function () {

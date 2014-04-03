@@ -40,28 +40,20 @@
 	 </toolbarbutton>
 </textbox>
 <hbox id="urlbar-icons">
-  <image id="coba-urlbar-icon" insertafter="page-report-button"
+  <image id="coba-urlbar-icon" class="urlbar-icon" insertafter="page-report-button"
          hidden="true"
          tooltiptext="&coba.urlbar.switch.tooltip0;"
          />
 </hbox>
-<!-- Toolbar button-->
-<!--toolbarpalette id="BrowserToolbarPalette">
-	<toolbarbutton id="coba-toolbar-palette-button"
-	label="&coba.switchButton.label;"
-	class="toolbarbutton-1 chromeclass-toolbar-additional"
-	onclick="COBA.clickSwitchButton(event);" tooltip="coba-urlbar-switch-tooltip"
-	engine="fx" />
-</toolbarpalette-->
 
 <!-- Popup menus -->
-<popupset>
+<popupset id="mainPopupSet">
   <!-- Switch button context menu -->
   <menupopup id="coba-switch-button-context-menu">
     <menuitem label="&coba.settings.title;" oncommand="COBA.openOptionsDialog()"/>
   </menupopup>
 
-  <panel id="coba-identity-popup" type="arrow" hidden1="true" noautofocus="true" onpopupshown="COBA.identityPopupShown();" level="top">
+  <panel id="coba-identity-popup" type="arrow" noautofocus="true" onpopupshown="COBA.identityPopupShown();" level="top">
     <hbox id="coba-identity-popup-container" align="top">
       <image id="coba-identity-popup-icon"/>
       <vbox id="coba-identity-popup-content-box">
