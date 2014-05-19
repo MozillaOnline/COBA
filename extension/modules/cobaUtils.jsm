@@ -16,10 +16,11 @@ along with Fire-IE.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 let EXPORTED_SYMBOLS = ['cobaUtils'];
-var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components; 
+let {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://coba/logger.jsm");
 
 let cobaUtils = {
   getTabAttributeJSON: function(tab, name) {
@@ -64,23 +65,23 @@ let cobaUtils = {
     }
     return null;
   },
-  
+
   getTabFromWindow: function(win) {
     function getRootWindow(win) {
       for (; win; win = win.parent) {
         if (!win.parent || win == win.parent || !(win.parent instanceof Ci.nsIDOMWindow))
           return win;
       }
-    
+
       return null;
-    }  
+    }
     let aWindow = getRootWindow(win);
-    
+
     if (!aWindow || !aWindow.document)
       return null;
-    
+
     return this.getTabFromDocument(aWindow.document);
-  }  
+  }
 
 };
 
@@ -101,11 +102,4 @@ cobaUtils.Strings = {};
  * Set the value of preference "extensions.logging.enabled" to false to hide
  * cobaUtils.LOG message
  */
-["LOG", "WARN", "ERROR"].forEach(function(aName) {
-  this.__defineGetter__(aName, function() {
-    Cu.import("resource://gre/modules/AddonLogging.jsm");
-
-    LogManager.getLogger("COBA", this);
-    return this[aName];
-  });
-}, cobaUtils);
+Logger.getLogger(cobaUtils);

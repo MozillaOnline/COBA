@@ -20,15 +20,17 @@
  * the Initial Developer. All Rights Reserved.
  *
  * ***** END LICENSE BLOCK ***** */
-var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components; 
+var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://coba/logger.jsm");
 
 const _COBA_WATCH_CID = Components.ID('{4A5F2348-6943-4d85-A652-A7F32B68259B}');
 const _COBA_WATCH_CONTRACTID = "@mozilla.com.cn/coba;1";
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
+
 var Strings = Services.strings.createBundle("chrome://coba/locale/global.properties");
 
 let IDS = ["coralietab@mozdev.org",
@@ -43,37 +45,30 @@ let IDS = ["coralietab@mozdev.org",
              Strings.GetStringFromName("coba.conflict.askuser.fireie"),
           ];
 
-["LOG", "WARN", "ERROR"].forEach(function(aName) {
-  this.__defineGetter__(aName, function() {
-    Cu.import("resource://gre/modules/AddonLogging.jsm");
-
-    LogManager.getLogger("COBA", this);
-    return this[aName];
-  });
-}, this);
+Logger.getLogger(this);
 
 function httpGet (url, onreadystatechange) {
-	var xmlHttpRequest = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
+    var xmlHttpRequest = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
   xmlHttpRequest.QueryInterface(Ci.nsIJSXMLHttpRequest);
-	xmlHttpRequest.open('GET', url, true);
-	xmlHttpRequest.send(null);
-	xmlHttpRequest.onreadystatechange = function() {
-		onreadystatechange(xmlHttpRequest);
-	};
+    xmlHttpRequest.open('GET', url, true);
+    xmlHttpRequest.send(null);
+    xmlHttpRequest.onreadystatechange = function() {
+        onreadystatechange(xmlHttpRequest);
+    };
 };
-   
+
 function updateFilter (timer) {
-	var updateUrl = Services.prefs.getCharPref("extensions.coba.official.updateurl", null);
-	if(!updateUrl)
-	  return;
-	httpGet(updateUrl, function(response) {
-		if (response.readyState == 4 && 200 == response.status) {
-			var filter = response.responseText;
-			if (filter) {
+    var updateUrl = Services.prefs.getCharPref("extensions.coba.official.updateurl", null);
+    if(!updateUrl)
+      return;
+    httpGet(updateUrl, function(response) {
+        if (response.readyState == 4 && 200 == response.status) {
+            var filter = response.responseText;
+            if (filter) {
         Services.prefs.setCharPref("extensions.coba.official.filterlist", filter);
-			}
-		}
-	});  
+            }
+        }
+    });
 }
 
 function checkIECompatMode(){
@@ -119,10 +114,10 @@ var prefOberver = {
         aIID.equals(Ci.nsISupportsWeakReference) ||
         aIID.equals(Ci.nsISupports))
       return this;
-  
+
     throw Components.results.NS_ERROR_NO_INTERFACE;
   },
-  
+
   observe: function(aSubject, aTopic, aPrefName) {
     if (aTopic != "nsPref:changed")
       return;
@@ -133,7 +128,7 @@ var prefOberver = {
     if(Services.prefs.getBoolPref("dom.ipc.plugins.enabled.npcoralietab.dll", true))
       Services.prefs.setBoolPref("dom.ipc.plugins.enabled.npcoralietab.dll", false);
   },
-  
+
 }
 function setPref(){
 //  Services.prefs.addObserver("dom.ipc.plugins.enabled.npietab.dll", prefOberver, true);
@@ -156,8 +151,8 @@ function askUser(window,finds) {
     return false;
   var prompter = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
   var always = { value: true };
-  var flag = prompter.BUTTON_POS_0 * prompter.BUTTON_TITLE_IS_STRING  +  
-             prompter.BUTTON_POS_1 * prompter.BUTTON_TITLE_CANCEL;  
+  var flag = prompter.BUTTON_POS_0 * prompter.BUTTON_TITLE_IS_STRING  +
+             prompter.BUTTON_POS_1 * prompter.BUTTON_TITLE_CANCEL;
   var text = Strings.GetStringFromName("coba.conflict.askuser.string1");
   for (var i = 0; i < finds.length ; i++) {
     text += " - ";
@@ -185,9 +180,9 @@ function checkConflict(window){
       }
     }
     if(askUser(window,finds)){
-      window.BrowserOpenAddonsMgr(); 
-    } 	    
-	});
+      window.BrowserOpenAddonsMgr();
+    }
+    });
 },1000);
 }
 
@@ -199,7 +194,7 @@ watchFactoryClass.prototype = {
   classID: _COBA_WATCH_CID,
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
                                          Ci.nsISupportsWeakReference]),
-  
+
   window: null,
   observe: function (aSubject, aTopic, aData) {
     switch (aTopic) {
