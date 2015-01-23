@@ -123,7 +123,7 @@ COBA.getCurrentIeTabURI = function(aBrowser) {
       }
     }
   } catch (e) {
-    cobaUtils.LOG('COBA.getCurrentIeTabURI: ' + ex);
+    cobaUtils.LOG('COBA.getCurrentIeTabURI: ' + e);
   }
   return null;
 }
