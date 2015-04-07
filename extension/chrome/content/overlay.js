@@ -754,6 +754,14 @@ COBA.init = function() {
   } else {
     COBA.initLater();
   }
+
+  // Clear IE compat mode settings
+  let wrk = Cc["@mozilla.org/windows-registry-key;1"].createInstance(Ci.nsIWindowsRegKey);
+  wrk.open(wrk.ROOT_KEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION", wrk.ACCESS_ALL);
+  try {
+    wrk.removeValue('firefox.exe');
+    wrk.removeValue('plugin-container.exe');
+  } catch(e) {}
 }
 COBA.initDone = false;
 

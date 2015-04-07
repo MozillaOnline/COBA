@@ -26,18 +26,6 @@
 <!ENTITY coba.settings.filter.official.column.rule "规则">
 <!ENTITY coba.settings.filter.official.column.enabled "激活">
 
-<!ENTITY coba.settings.general.label "功能设置">
-<!ENTITY coba.settings.switch.caption "浏览引擎切换时:">
-<!ENTITY coba.settings.switch.handleurl "总是以当前浏览引擎打开地址栏的新网址">
-<!ENTITY coba.settings.processmode.caption "进程模式">
-<!ENTITY coba.settings.processmode.runinprocess "在firefox.exe进程中运行插件(重启火狐生效)">
-
-<!ENTITY coba.settings.iecompat.label "IE兼容模式">
-<!ENTITY coba.settings.iecompat.ie7 "IE7标准模式">
-<!ENTITY coba.settings.iecompat.ie8 "IE8标准模式">
-<!ENTITY coba.settings.iecompat.ie9 "IE9标准模式">
-<!ENTITY coba.settings.iecompat.desc "* 启用这个特性需要安装IE8或更高版本(重启火狐生效)">
-
 <!ENTITY coba.settings.apply "应用">
 <!ENTITY coba.settings.manager "设置管理">
 <!ENTITY coba.settings.default "还原默认值">

@@ -13,8 +13,6 @@
     <tabs>
       <tab label="&coba.settings.filter.label;" />
       <tab label="&coba.settings.filter.official.label;" />
-      <tab label="&coba.settings.general.label;" />
-      <!--tab label="&coba.settings.iecompat.label;" /-->
     </tabs>
     <tabpanels>
     <!-- Filter Tab 网址过滤-->
@@ -62,54 +60,6 @@
               <treechildren id="filterChilds-official" ondblclick="COBA.onClickFilterListOfficial(event);" />
             </tree>
           </hbox>
-        </vbox>
-      </tabpanel>
-      <!-- General Tab 功能设置-->
-      <!--tabpanel>
-        <vbox flex="1">
-          <groupbox>
-            <caption label="&coba.settings.switch.caption;" />
-            <hbox align="center">
-              <checkbox label="&coba.settings.switch.handleurl;" id="handleurl" />
-            </hbox>
-          </groupbox>
-          <groupbox>
-            <caption label="&coba.settings.processmode.caption;" />
-            <hbox align="center">
-              <checkbox label="&coba.settings.processmode.runinprocess;" id="runinprocess" />
-            </hbox>
-          </groupbox>
-          <groupbox>
-            <caption label="DEP" />
-            <hbox align="center">
-              <button label="Remove Firefox hard DEP" oncommand="COBA.removeDEP();" />
-            </hbox>
-          </groupbox>
-        </vbox>
-      </tabpanel-->
-      <!-- IE Compatibility Mode IE兼容模式-->
-      <tabpanel>
-        <vbox flex="1">
-          <groupbox>
-            <caption label="&coba.settings.iecompat.label;" />
-            <vbox>
-              <radiogroup id="mode">
-                <radio id="ie7mode" label="&coba.settings.iecompat.ie7;" hidden="true"/>
-                <radio id="ie8mode" label="&coba.settings.iecompat.ie8;" hidden="true"/>
-                <radio id="ie9mode" label="&coba.settings.iecompat.ie9;" hidden="true"/>
-              </radiogroup>
-              <label id="iecompat" style="margin-top:20px" hidden="true">
-                     &coba.settings.iecompat.desc;
-              </label>
-            </vbox>
-          </groupbox>
-          <!--groupbox>
-            <caption label="DEP" />
-            <hbox align="center">
-              <button label="Remove Firefox hard DEP" oncommand="COBA.removeDEP();" />
-            </hbox>
-          </groupbox-->
-
         </vbox>
       </tabpanel>
     </tabpanels>

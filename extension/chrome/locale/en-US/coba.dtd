@@ -26,18 +26,6 @@
 <!ENTITY coba.settings.filter.official.column.rule "Rule">
 <!ENTITY coba.settings.filter.official.column.enabled "Enabled">
 
-<!ENTITY coba.settings.general.label "General Settings">
-<!ENTITY coba.settings.switch.caption "When switch rendering engine:">
-<!ENTITY coba.settings.switch.handleurl "Always use current engine to open a new URL">
-<!ENTITY coba.settings.processmode.caption "Process Mode:">
-<!ENTITY coba.settings.processmode.runinprocess "Run the plugin in the firefox.exe process (requires Firefox to restart)">
-
-<!ENTITY coba.settings.iecompat.label "IE Compatibility Mode">
-<!ENTITY coba.settings.iecompat.ie7 "IE7 Standards Mode">
-<!ENTITY coba.settings.iecompat.ie8 "IE8 Standards Mode">
-<!ENTITY coba.settings.iecompat.ie9 "IE9 Standards Mode">
-<!ENTITY coba.settings.iecompat.desc "* This feature only works if you have IE8+ installed (requires Firefox to restart)">
-
 <!ENTITY coba.settings.apply "Apply">
 <!ENTITY coba.settings.manager "Settings Manager">
 <!ENTITY coba.settings.default "Restore Default">

@@ -9,8 +9,6 @@ pref("extensions.coba.handleUrlBar", false);
 pref("extensions.coba.shortcut.key", "");
 pref("extensions.coba.shortcut.modifiers", "alt");
 pref("extensions.coba.showUrlBarLabel", true);
-pref("extensions.coba.compatMode", "ie7mode");
-
 
 pref("extensions.coba.official.filter", true);
 pref("extensions.coba.official.updateurl", "http://i.g-fox.cn/notification/coba_official_v2.json");

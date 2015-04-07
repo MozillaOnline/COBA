@@ -71,42 +71,6 @@ function updateFilter (timer) {
     });
 }
 
-function checkIECompatMode(){
-  var wrk = Cc["@mozilla.org/windows-registry-key;1"].createInstance(Ci.nsIWindowsRegKey);
-  wrk.create(wrk.ROOT_KEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Internet Explorer", wrk.ACCESS_READ);
-
-  var value = "";
-  try{
-    value = wrk.readStringValue("version");
-    wrk.close();
-    value = value.split('.')[0];
-  }catch(e) {}
-  var version = 8000;
-  if(value ==  "9")
-    version = 9000;
-  else if(value ==  "7")
-    version = 7000;
-  else
-    version = 8000;
-  wrk.close();
-
-  wrk = Cc["@mozilla.org/windows-registry-key;1"].createInstance(Ci.nsIWindowsRegKey);
-  wrk.create(wrk.ROOT_KEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION", wrk.ACCESS_ALL);
-  try{
-    value = 0;
-    value = wrk.readIntValue("firefox.exe");
-  }catch(e) {}
-
-  if (value != 0) {
-    wrk.close();
-    return;
-  }
-
-  try{
-    wrk.writeIntValue("firefox.exe", version);
-  }catch(e) {}
-  wrk.close();
-}
 var prefOberver = {
   QueryInterface: function(aIID) {
     const Ci = Components.interfaces;
@@ -208,7 +172,6 @@ watchFactoryClass.prototype = {
       if (autoUpdate) {
         updateFilter();
       }
-      checkIECompatMode();
       setPref();
       Services.obs.addObserver(this, "quit-application", true);
       Services.obs.addObserver(this, "domwindowopened", true);

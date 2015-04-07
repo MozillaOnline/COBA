@@ -92,16 +92,6 @@ COBA.setOptions = function (quiet) {
   //update UI
   COBA.updateApplyButton(false);
 
-  // Deal with compatibility mode
-  var newMode = "ie7mode";
-  var item = document.getElementById("mode").selectedItem;
-  if (item) newMode = item.getAttribute("id");
-  if (Services.prefs.getCharPref("extensions.coba.compatMode") != newMode) {
-    requiresRestart = true;
-    Services.prefs.setCharPref("extensions.coba.compatMode", newMode);
-    COBA.updateIECompatMode();
-  }
-
   //notify of restart requirement
   if (requiresRestart && !quiet) {
     alert(cobaUtils.Strings.global.GetStringFromName("coba.settings.alert.restart"));
@@ -220,33 +210,6 @@ COBA.initDialog = function () {
   COBA.updateFilterStatus();
   COBA.updateOfficialFilterStatus();
   COBA.updateApplyButton(false);
-
-  //compatibility mode IE兼容模式
-  COBA.updateIECompatUI();
-  var mode = Services.prefs.getCharPref("extensions.coba.compatMode");
-  document.getElementById("mode").selectedItem = document.getElementById(mode);
-}
-
-COBA.updateIECompatUI = function () {
-  var wrk = Cc["@mozilla.org/windows-registry-key;1"].createInstance(Ci.nsIWindowsRegKey);
-  wrk.create(wrk.ROOT_KEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Internet Explorer", wrk.ACCESS_READ);
-
-  var value = "";
-  try{
-    value = wrk.readStringValue("version");
-    wrk.close();
-  }catch(e) {ERROR(e)}
-  value = value.split('.')[0];
-  switch(value){
-    case "9":
-      document.getElementById("ie9mode").hidden = false;
-    case "8":
-      document.getElementById("ie8mode").hidden = false;
-      document.getElementById("ie7mode").hidden = false;
-      break;
-    default:
-      document.getElementById("iecompat").hidden = false;
-  }
 }
 
 COBA.updateApplyButton = function (e) {
@@ -292,22 +255,6 @@ COBA.updateOfficialFilterStatus = function () {
   var en = document.getElementById('filtercbx-official').checked;
   document.getElementById('filterList-official').disabled = (!en);
   document.getElementById('filterList-official').editable = (en);
-}
-
-COBA.updateIECompatMode = function () {
-  var mode = Services.prefs.getCharPref("extensions.coba.compatMode");
-  var wrk = Cc["@mozilla.org/windows-registry-key;1"].createInstance(Ci.nsIWindowsRegKey);
-  wrk.create(wrk.ROOT_KEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION", wrk.ACCESS_ALL);
-
-  var value = 7000;
-  if (mode == "ie8mode")
-    value = 8000;
-  else if (mode == "ie9mode")
-    value = 9000;
-
-  wrk.writeIntValue("firefox.exe", value);
-  wrk.writeIntValue("plugin-container.exe", value);
-  wrk.close();
 }
 
 COBA.getFilterListString = function () {
