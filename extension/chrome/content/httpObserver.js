@@ -120,6 +120,12 @@ COBA.HttpObserver = {
         this.headers = "";
       };
       visitor.prototype.visitHeader = function(aHeader, aValue) {
+        // ICBC only supports FF10 - FF21, let's fake the user agent here.
+        if (aHeader == 'User-Agent' &&
+            httpChannel.URI.host.endsWith('.icbc.com.cn')) {
+          aValue = aValue.replace(/rv:[0-9.]+/i, 'rv:20.0').replace(/Firefox\/[0-9.]+/i, 'Firefox/20.0');
+        }
+
         this.headers += aHeader + ":" + aValue + "\r\n";
       };
       var v = new visitor();
