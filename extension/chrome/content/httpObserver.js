@@ -25,7 +25,7 @@ Cu.import("resource://gre/modules/Services.jsm");
  * @namespace
  */
 if (typeof(COBA) == "undefined") {
-	var COBA = {};
+  var COBA = {};
 }
 
 function getWindowForWebProgress(webProgress) {
@@ -59,37 +59,37 @@ function getWindowForRequest(request){
 }
 
 COBA.HttpObserver = {
-	// nsISupports
-	QueryInterface: function(iid) {
-		if (iid.equals(Ci.nsISupports) ||
-			iid.equals(Ci.nsIObserver)) {
-			return this;
-		}
-		throw Cr.NS_ERROR_NO_INTERFACE;
-	},
+  // nsISupports
+  QueryInterface: function(iid) {
+    if (iid.equals(Ci.nsISupports) ||
+      iid.equals(Ci.nsIObserver)) {
+      return this;
+    }
+    throw Cr.NS_ERROR_NO_INTERFACE;
+  },
 
-	// nsIObserver
-	observe: function(subject, topic, data) {
-		if (!(subject instanceof Ci.nsIHttpChannel))
-			return;
-		switch (topic) {
-			case 'http-on-modify-request':
-				this.onModifyRequest(subject);
-				break;
-			}
-	},
+  // nsIObserver
+  observe: function(subject, topic, data) {
+    if (!(subject instanceof Ci.nsIHttpChannel))
+      return;
+    switch (topic) {
+      case 'http-on-modify-request':
+        this.onModifyRequest(subject);
+        break;
+      }
+  },
 
-	onModifyRequest: function(subject) {
-		var httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
+  onModifyRequest: function(subject) {
+    var httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
     var win = getWindowForRequest(httpChannel);
     var tab = cobaUtils.getTabFromWindow(win);
     var isWindowURI = httpChannel.loadFlags & Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI;
-		if (isWindowURI) {
+    if (isWindowURI) {
       var url = httpChannel.URI.spec;
       var skipDomain = tab.getAttribute("skipDomain");
-  	  if (skipDomain && skipDomain == COBA.getUrlDomain(url).toLowerCase()) {
-  			return ;
-  		}
+      if (skipDomain && skipDomain == COBA.getUrlDomain(url).toLowerCase()) {
+        return ;
+      }
       if (this.shouldFilter(url)) {
         if (!tab.linkedBrowser) return;
 
@@ -106,22 +106,22 @@ COBA.HttpObserver = {
           post = NetUtil.readInputStreamToString(uploadChannel.uploadStream, len);
         }
 
-				// 通过Tab的Attribute传送http header和post data参数
-				var param = {headers: headers, post: post};
-				COBA.setTabAttributeJSON(tab, COBA.navigateParamsAttr, param);
+        // 通过Tab的Attribute传送http header和post data参数
+        var param = {headers: headers, post: post};
+        COBA.setTabAttributeJSON(tab, COBA.navigateParamsAttr, param);
 
         tab.linkedBrowser.loadURI(COBA.getCOBAURL(url));
       }
-		}
-	},
+    }
+  },
 
   _getAllRequestHeaders: function(httpChannel) {
-    	var visitor = function() {
+      var visitor = function() {
         this.headers = "";
-		  };
+      };
       visitor.prototype.visitHeader = function(aHeader, aValue) {
         this.headers += aHeader + ":" + aValue + "\r\n";
-		  };
+      };
       var v = new visitor();
       httpChannel.visitRequestHeaders(v);
       return v.headers;
@@ -131,7 +131,7 @@ COBA.HttpObserver = {
     return !watcher.isCOBAURL(url)
          && !COBA.isFirefoxOnly(url)
          && watcher.isMatchFilterList(url);
-	}
+  }
 }
 
 var watcher = {
