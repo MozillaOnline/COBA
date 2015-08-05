@@ -52,20 +52,12 @@ COBA.track = function(data) {
   if (!tracker || !tracker.getService().wrappedJSObject.ude) {
     return;
   }
-  var _trackurl = 'http://img.g-fox.cn/coba.gif';
   var uuid = COBA.getUUID();
+  var _trackurl = 'http://addons.g-fox.cn/coba.gif';
   var image = new Image();
   image.src = _trackurl + '?r=' +  Math.random()
             + '&uuid=' + uuid
             + '&' + data.key + '=' + data.value
-            + '&ab=' + 'a1'
-            ;
-  var _trackurl2 = 'http://addons.g-fox.cn/coba.gif';
-  var image2 = new Image();
-  image2.src = _trackurl2 + '?r=' +  Math.random()
-            + '&uuid=' + uuid
-            + '&' + data.key + '=' + data.value
-            + '&ab=' + 'b1'
             ;
 }
 
@@ -676,7 +668,29 @@ COBA.hookCodeAll = function() {
   COBA.hookURLBarSetter(gURLBar);
   //hook functions
   COBA.hookCode("gFindBar._onBrowserKeypress", "this._useTypeAheadFind &&", "$& !COBA.isIEEngine() &&"); // IE内核时不使用Firefox的查找条, $&指代被替换的代码
-  COBA.hookCode("PlacesCommandHook.bookmarkPage", "aBrowser.currentURI", "makeURI(COBA.getActualUrl($&.spec))"); // 添加到收藏夹时获取实际URL
+
+  let appVer = Services.appinfo.version;
+  if (Services.vc.compare(appVer, '40.0') < 0) {
+    COBA.hookCode("PlacesCommandHook.bookmarkPage", "aBrowser.currentURI", "makeURI(COBA.getActualUrl($&.spec))"); // 添加到收藏夹时获取实际URL
+  } else {
+    let orgiBookmarkPage = PlacesCommandHook.bookmarkPage;
+    PlacesCommandHook.bookmarkPage = function() {
+      let args = [].slice.call(arguments);
+      let browser = args.shift();
+      let proxy = new Proxy(browser, {
+        get: function(target, name) {
+          if (name == 'currentURI') {
+            return makeURI(COBA.getActualUrl(target.currentURI.spec));
+          } else {
+            return target[name];
+          }
+        }
+      });
+      args.unshift(proxy);
+      orgiBookmarkPage.apply(PlacesCommandHook, args);
+    };
+  }
+
   if (window.PlacesStarButton)
     COBA.hookCode("PlacesStarButton.updateState" , /(gBrowser|getBrowser\(\))\.currentURI/g, "makeURI(COBA.getActualUrl($&.spec))"); // 用IE内核浏览网站时，在地址栏中正确显示收藏状态(星星按钮黄色时表示该页面已收藏)
   else

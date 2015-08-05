@@ -35,7 +35,6 @@ function tracking(type){
     return;
   }
   try{
-    var _trackurl = 'http://img.g-fox.cn/coba.gif';
     var _uuidprf = 'extensions.coba.uuid';
     var uuid = Application.prefs.getValue(_uuidprf,"");
     if(uuid == ""){
@@ -43,18 +42,11 @@ function tracking(type){
   		uuid = uuidgen.generateUUID().number;
   		Application.prefs.setValue(_uuidprf,uuid);
     }
+    var _trackurl = 'http://addons.g-fox.cn/coba.gif';
     var image = new Image();
     image.src = _trackurl + '?r=' + tracking_random
               + '&uuid=' + uuid
               + '&type=' + type
-              + '&ab=' + 'a2'
-              ;
-    var _trackurl2 = 'http://addons.g-fox.cn/coba.gif';
-    var image2 = new Image();
-    image2.src = _trackurl2 + '?r=' + tracking_random
-              + '&uuid=' + uuid
-              + '&type=' + type
-              + '&ab=' + 'b2'
               ;
   }catch(e){}
 }
