@@ -114,6 +114,7 @@ COBA.removeEventListenerByTagName = function (tag, type, listener) {
 
 //-----------------------------------------------------------------------------
 /** 替换函数部分源码 */
+/*
 COBA.hookCode = function (orgFunc, orgCode, myCode) {
   try {
     if (eval(orgFunc).toString() == eval(orgFunc + "=" + eval(orgFunc).toString().replace(orgCode, myCode))) throw orgFunc;
@@ -121,7 +122,7 @@ COBA.hookCode = function (orgFunc, orgCode, myCode) {
     cobaUtils.ERROR("Failed to hook function: " + orgFunc);
   }
 }
-
+*/
 /** 将attribute值V替换为myFunc+V*/
 COBA.hookAttr = function (parentNode, attrName, myFunc) {
   if (typeof (parentNode) == "string") parentNode = document.getElementById(parentNode);

@@ -219,25 +219,22 @@ COBA.updateApplyButton = function (e) {
 COBA.init = function () {
   COBA.initDialog();
   COBA.addEventListenerByTagName("checkbox", "command", COBA.updateApplyButton);
-  COBA.addEventListenerByTagName("radio", "command", COBA.updateApplyButton);
-  COBA.addEventListener("filterChilds", "DOMAttrModified", COBA.updateApplyButton);
-  COBA.addEventListener("filterChilds", "DOMNodeInserted", COBA.updateApplyButton);
-  COBA.addEventListener("filterChilds", "DOMNodeRemoved", COBA.updateApplyButton);
-  COBA.addEventListener("filterChilds-official", "DOMAttrModified", COBA.updateApplyButton);
-  COBA.addEventListener("filterChilds-official", "DOMNodeInserted", COBA.updateApplyButton);
-  COBA.addEventListener("filterChilds-official", "DOMNodeRemoved", COBA.updateApplyButton);
+
+  COBA.filterObserver = new MutationObserver(function() {
+    COBA.updateApplyButton(true);
+  });
+
+  var config = { attributes: true, childList: true, subtree:true};
+  COBA.filterObserver.observe(document.getElementById('filterChilds'), config);
+  COBA.filterObserver.observe(document.getElementById('filterChilds-official'), config);
+
   COBA.addEventListener("parambox", "input", COBA.updateApplyButton);
 }
 
 COBA.destory = function () {
   COBA.removeEventListenerByTagName("checkbox", "command", COBA.updateApplyButton);
   COBA.removeEventListenerByTagName("radio", "command", COBA.updateApplyButton);
-  COBA.removeEventListener("filterChilds", "DOMAttrModified", COBA.updateApplyButton);
-  COBA.removeEventListener("filterChilds", "DOMNodeInserted", COBA.updateApplyButton);
-  COBA.removeEventListener("filterChilds", "DOMNodeRemoved", COBA.updateApplyButton);
-  COBA.removeEventListener("filterChilds-official", "DOMAttrModified", COBA.updateApplyButton);
-  COBA.removeEventListener("filterChilds-official", "DOMNodeInserted", COBA.updateApplyButton);
-  COBA.removeEventListener("filterChilds-official", "DOMNodeRemoved", COBA.updateApplyButton);
+  COBA.filterObserver.disconnect();
   COBA.removeEventListener("parambox", "input", COBA.updateApplyButton);
 }
 
@@ -484,7 +481,7 @@ COBA.removeDEP = function () {
   }
   AddonManager.getAddonByID("coba@mozilla.com.cn", function (addon) {
     try {
-      netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+      // netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
       var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
       file.initWithPath(getFileFromURLSpec(addon.getResourceURI("").spec).path + "\\bin\\Dep.exe");
       var process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);

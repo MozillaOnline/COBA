@@ -20,7 +20,6 @@
  * the Initial Developer. All Rights Reserved.
  *
  * ***** END LICENSE BLOCK ***** */
-
 /**
  * @namespace
  */
@@ -32,18 +31,20 @@ var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://coba/cobaUtils.jsm");
+Cu.import("resource://gre/modules/Preferences.jsm");
 let Strings = cobaUtils.Strings;
 
 COBA.getUUID = function() {
   var _uuidprf = 'extensions.coba.uuid';
-  var uuid = Application.prefs.getValue(_uuidprf,"");
+  var uuid = Preferences.get(_uuidprf,"");
   if(uuid == ""){
-		var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
-		uuid = uuidgen.generateUUID().number;
-		Application.prefs.setValue(_uuidprf,uuid);
+    var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
+    uuid = uuidgen.generateUUID().number;
+    Preferences.set(_uuidprf, uuid);
   }
   return uuid;
 }
+
 COBA.track = function(data) {
   if (!data) {
     return;
@@ -544,6 +545,7 @@ COBA.onTabSelected = function(e) {
   COBA.updateAll();
   COBA.focusIE();
 }
+
 COBA.switchToIEByDoc = {
   // nsISupports
   QueryInterface: function(iid) {
@@ -653,6 +655,7 @@ COBA.hookURLBarSetter = function(aURLBar) {
       COBA.goDoCommand("HandOverFocus");
     }
   }
+
   COBA.hookProp(aURLBar, "value", null, function() {
     this.isModeIE = arguments[0] && (arguments[0].substr(0, COBA.containerUrl.length) == COBA.containerUrl);
     if (this.isModeIE) {
@@ -666,60 +669,146 @@ COBA.hookCodeAll = function() {
   //hook properties
   COBA.hookBrowserGetter(gBrowser.mTabContainer.firstChild.linkedBrowser);
   COBA.hookURLBarSetter(gURLBar);
-  //hook functions
-  COBA.hookCode("gFindBar._onBrowserKeypress", "this._useTypeAheadFind &&", "$& !COBA.isIEEngine() &&"); // IE内核时不使用Firefox的查找条, $&指代被替换的代码
 
-  let appVer = Services.appinfo.version;
-  if (Services.vc.compare(appVer, '40.0') < 0) {
-    COBA.hookCode("PlacesCommandHook.bookmarkPage", "aBrowser.currentURI", "makeURI(COBA.getActualUrl($&.spec))"); // 添加到收藏夹时获取实际URL
-  } else {
-    let orgiBookmarkPage = PlacesCommandHook.bookmarkPage;
-    PlacesCommandHook.bookmarkPage = function() {
-      let args = [].slice.call(arguments);
-      let browser = args.shift();
-      let proxy = new Proxy(browser, {
-        get: function(target, name) {
-          if (name == 'currentURI') {
-            return makeURI(COBA.getActualUrl(target.currentURI.spec));
-          } else {
-            return target[name];
-          }
+  let orgiBookmarkPage = PlacesCommandHook.bookmarkPage;
+  PlacesCommandHook.bookmarkPage = function() {
+    let args = [].slice.call(arguments);
+    let browser = args.shift();
+    let proxy = new Proxy(browser, {
+      get: function(target, name) {
+        if (name == 'currentURI') {
+          return makeURI(COBA.getActualUrl(target.currentURI.spec));
+        } else {
+          return target[name];
         }
-      });
-      args.unshift(proxy);
-      orgiBookmarkPage.apply(PlacesCommandHook, args);
-    };
-  }
+      }
+    });
+    args.unshift(proxy);
+    return orgiBookmarkPage.apply(PlacesCommandHook, args);
+  };
 
-  if (window.PlacesStarButton)
-    COBA.hookCode("PlacesStarButton.updateState" , /(gBrowser|getBrowser\(\))\.currentURI/g, "makeURI(COBA.getActualUrl($&.spec))"); // 用IE内核浏览网站时，在地址栏中正确显示收藏状态(星星按钮黄色时表示该页面已收藏)
-  else
-    COBA.hookCode("BookmarkingUI.updateStarState", /(gBrowser|getBrowser\(\))\.currentURI/g, "makeURI(COBA.getActualUrl($&.spec))"); // 用IE内核浏览网站时，在地址栏中正确显示收藏状态(星星按钮黄色时表示该页面已收藏)
-  COBA.hookCode("gBrowser.addTab", "return t;", "COBA.hookBrowserGetter(t.linkedBrowser); $&");
-  COBA.hookCode("gBrowser.setTabTitle", "if (browser.currentURI.spec) {", "$& if (browser.currentURI.spec.indexOf(COBA.containerUrl) == 0) return;"); // 取消原有的Tab标题文字设置
-  COBA.hookCode("getShortcutOrURI", /return (\S+);/g, "return COBA.getHandledURL($1);"); // 访问新的URL
+  // COBA.hookCode("BookmarkingUI.updateStarState", /(gBrowser|getBrowser\(\))\.currentURI/g, "makeURI(COBA.getActualUrl($&.spec))");
+  let orgiUpdateStarState = BookmarkingUI.updateStarState;
+  BookmarkingUI.updateStarState = function() {
+    BookmarkingUI.__defineSetter__('_uri', function(newURI) {
+      delete this._uri;
+      this._uri = makeURI(COBA.getActualUrl(newURI.spec));
+    });
+
+    return orgiUpdateStarState.apply(BookmarkingUI);
+  };
+
+  // COBA.hookCode("gBrowser.addTab", "return t;", "COBA.hookBrowserGetter(t.linkedBrowser); $&");
+  let origAddTab = gBrowser.addTab;
+  gBrowser.addTab = function() {
+    let tab = origAddTab.apply(gBrowser, arguments);
+    COBA.hookBrowserGetter(tab.linkedBrowser);
+    return tab;
+  };
+
+  // COBA.hookCode("gBrowser.setTabTitle", "if (browser.currentURI.spec) {", "$& if (browser.currentURI.spec.indexOf(COBA.containerUrl) == 0) return;"); // 取消原有的Tab标题文字设置
+  let orgiSetTabTitle = gBrowser.setTabTitle;
+  gBrowser.setTabTitle = function(aTab) {
+    var browser = this.getBrowserForTab(aTab);
+    var title = browser.contentTitle;
+    if (!title && browser.currentURI.spec && browser.currentURI.spec.indexOf(COBA.containerUrl) == 0) return false;
+    return orgiSetTabTitle.apply(gBrowser, arguments);
+  };
+
+  // COBA.hookCode("getShortcutOrURI", /return (\S+);/g, "return COBA.getHandledURL($1);"); // 访问新的URL
 
   //hook Interface Commands
-  COBA.hookCode("BrowserBack", /{/, "$& if(COBA.goDoCommand('Back')) return;");
-  COBA.hookCode("BrowserForward", /{/, "$& if(COBA.goDoCommand('Forward')) return;");
-  COBA.hookCode("BrowserStop", /{/, "$& if(COBA.goDoCommand('Stop')) return;");
-  COBA.hookCode("BrowserReload", /{/, "$& if(COBA.goDoCommand('Refresh')) return;");
-  COBA.hookCode("BrowserReloadSkipCache", /{/, "$& if(COBA.goDoCommand('Refresh')) return;");
+  // COBA.hookCode("BrowserBack", /{/, "$& if(COBA.goDoCommand('Back')) return;");
+  let orgiBrowserBack = BrowserBack;
+  BrowserBack = function() {
+    if(COBA.goDoCommand('Back')) return;
+    return orgiBrowserBack();
+  };
 
-  COBA.hookCode("saveDocument", /{/, "$& if(COBA.goDoCommand('SaveAs')) return;");
-  COBA.hookCode("MailIntegration.sendMessage", /{/, "$& var pluginObject = COBA.getPluginObject(); if(pluginObject){ arguments[0]=pluginObject.URL; arguments[1]=pluginObject.Title; }"); // @todo 发送邮件？
+  // COBA.hookCode("BrowserForward", /{/, "$& if(COBA.goDoCommand('Forward')) return;");
+  let origBrowserForward = BrowserForward;
+  BrowserForward = function() {
+    if(COBA.goDoCommand('Forward')) return;
+    return origBrowserForward();
+  };
 
-  COBA.hookCode("PrintUtils.print", /{/, "$& if(COBA.goDoCommand('Print')) return;");
-  COBA.hookCode("PrintUtils.showPageSetup", /{/, "$& if(COBA.goDoCommand('PrintSetup')) return;");
-  COBA.hookCode("PrintUtils.printPreview", /{/, "$& if(COBA.goDoCommand('PrintPreview')) return;");
+  // COBA.hookCode("BrowserStop", /{/, "$& if(COBA.goDoCommand('Stop')) return;");
+  let origBrowserStop = BrowserStop;
+  BrowserStop = function() {
+    if(COBA.goDoCommand('Stop')) return;
+    return origBrowserStop();
+  };
 
-  COBA.hookCode("goDoCommand", /{/, "$& if(COBA.goDoCommand(arguments[0])) return;"); // cmd_cut, cmd_copy, cmd_paste, cmd_selectAll
+  // COBA.hookCode("BrowserReload", /{/, "$& if(COBA.goDoCommand('Refresh')) return;");
+  let origBrowserReload = BrowserReload;
+  BrowserReload = function() {
+    if(COBA.goDoCommand('Refresh')) return;
+    return origBrowserReload();
+  };
+
+  // COBA.hookCode("BrowserReloadSkipCache", /{/, "$& if(COBA.goDoCommand('Refresh')) return;");
+  let origBrowserReloadSkipCache = BrowserReloadSkipCache;
+  BrowserReloadSkipCache = function() {
+    if(COBA.goDoCommand('Refresh')) return;
+    return origBrowserReloadSkipCache();
+  };
+
+  // COBA.hookCode("saveDocument", /{/, "$& if(COBA.goDoCommand('SaveAs')) return;");
+  let orgiSaveDocument = saveDocument;
+  saveDocument = function() {
+    if(COBA.goDoCommand('SaveAs')) return;
+    return orgiSaveDocument();
+  };
+
+  // COBA.hookCode("MailIntegration.sendMessage", /{/, "$& var pluginObject = COBA.getPluginObject(); if(pluginObject){ arguments[0]=pluginObject.URL; arguments[1]=pluginObject.Title; }"); // @todo 发送邮件？
+  let origSendMessage = MailIntegration.sendMessage;
+  MailIntegration.sendMessage = function() {
+    var pluginObject = COBA.getPluginObject();
+    if (pluginObject) {
+      arguments[0] = pluginObject.URL;
+      arguments[1]=pluginObject.Title;
+    }
+    return origSendMessage.apply(MailIntegration, arguments);
+  };
+
+  // COBA.hookCode("PrintUtils.print", /{/, "$& if(COBA.goDoCommand('Print')) return;");
+  let origPrint = PrintUtils.print;
+  PrintUtils.print = function() {
+    if(COBA.goDoCommand('Print')) return;
+    return origPrint.apply(PrintUtils, arguments);
+  };
+
+  // COBA.hookCode("PrintUtils.showPageSetup", /{/, "$& if(COBA.goDoCommand('PrintSetup')) return;");
+  let origShowPageSetup = PrintUtils.showPageSetup;
+  PrintUtils.showPageSetup = function() {
+    if(COBA.goDoCommand('PrintSetup')) return;
+    return origShowPageSetup.apply(PrintUtils, arguments);
+  };
+
+  // COBA.hookCode("PrintUtils.printPreview", /{/, "$& if(COBA.goDoCommand('PrintPreview')) return;");
+  let origPrintPreview = PrintUtils.printPreview;
+  PrintUtils.printPreview = function() {
+    if(COBA.goDoCommand('PrintPreview')) return;
+    return origPrintPreview.apply(PrintUtils, arguments);
+  };
+
+  // COBA.hookCode("goDoCommand", /{/, "$& if(COBA.goDoCommand(arguments[0])) return;"); // cmd_cut, cmd_copy, cmd_paste, cmd_selectAll
+  let origGoDoCommand = goDoCommand;
+  goDoCommand = function() {
+    if(COBA.goDoCommand(arguments[0])) return;
+    return origGoDoCommand();
+  };
 
   COBA.hookAttr("cmd_find", "oncommand", "if(COBA.goDoCommand('Find')) return;");
   COBA.hookAttr("cmd_findAgain", "oncommand", "if(COBA.goDoCommand('Find')) return;");
   COBA.hookAttr("cmd_findPrevious", "oncommand", "if(COBA.goDoCommand('Find')) return;");
 
-  COBA.hookCode("displaySecurityInfo", /{/, "$& if(COBA.goDoCommand('DisplaySecurityInfo')) return;");
+  // COBA.hookCode("displaySecurityInfo", /{/, "$& if(COBA.goDoCommand('DisplaySecurityInfo')) return;");
+  let origDisplaySecurityInfo = displaySecurityInfo;
+  displaySecurityInfo = function() {
+    if(COBA.goDoCommand('DisplaySecurityInfo')) return;
+    return origDisplaySecurityInfo();
+  };
 }
 
 
@@ -761,6 +850,7 @@ COBA.removeEventAll = function() {
   COBA.removeEventListener(window, "NewIETab", COBA.onNewIETab);
   Services.obs.removeObserver(COBA.switchToIEByDoc, "COBA-swith-to-ie");
 }
+
 COBA.init = function() {
   COBA.removeEventListener(window, "load", COBA.init);
   if (!!document.getElementById("urlbar-container")) {
@@ -777,6 +867,7 @@ COBA.init = function() {
     wrk.removeValue('plugin-container.exe');
   } catch(e) {}
 }
+
 COBA.initDone = false;
 
 COBA.initLater = function() {
@@ -798,7 +889,6 @@ COBA.initLater = function() {
         if (!!document.getElementById("urlbar-container")) {
           self.initNow();
         }
-
       });
     });
 
@@ -808,17 +898,7 @@ COBA.initLater = function() {
       attributeFilter: ['currentset']
     };
     observer.observe(navbar, config);
-  } else {
-    navbar.addEventListener("DOMAttrModified",function(evt) {
-      if (evt.type == "DOMAttrModified" &&
-          evt.attrName == "currentset") {
-        if (!!document.getElementById("urlbar-container")) {
-          self.initNow();
-        }
-      }
-    }, false);
   }
-
 }
 
 COBA.initNow = function() {
@@ -889,8 +969,6 @@ COBA.setupUrlBar = function() {
   var btn_urlbar_icon = document.getElementById("coba-urlbar-icon");
   btn_urlbar_icon && btn_urlbar_icon.addEventListener("click", COBA.clickUrlbarIcon, false);
 }
-
-
 
 COBA.clickFavIcon = function (e) {
   COBA.track({key: 'click', value: 'favicon'})

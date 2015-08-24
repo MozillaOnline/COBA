@@ -26,8 +26,10 @@ var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource://coba/cobaUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/PlacesUtils.jsm")
-Cu.import("resource://gre/modules/NetUtil.jsm")
+Cu.import("resource://gre/modules/PlacesUtils.jsm");
+Cu.import("resource://gre/modules/NetUtil.jsm");
+Cu.import("resource://gre/modules/Preferences.jsm");
+
 var tracking_random = Math.random();
 function tracking(type){
   var tracker = Components.classes["@mozilla.com.cn/tracking;1"];
@@ -36,11 +38,11 @@ function tracking(type){
   }
   try{
     var _uuidprf = 'extensions.coba.uuid';
-    var uuid = Application.prefs.getValue(_uuidprf,"");
-    if(uuid == ""){
-  		var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
-  		uuid = uuidgen.generateUUID().number;
-  		Application.prefs.setValue(_uuidprf,uuid);
+    var uuid = Preferences.get(_uuidprf, '');
+    if (uuid == ''){
+      var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
+      uuid = uuidgen.generateUUID().number;
+      Preferences.set(_uuidprf, uuid);
     }
     var _trackurl = 'http://addons.g-fox.cn/coba.gif';
     var image = new Image();

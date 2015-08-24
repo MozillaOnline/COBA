@@ -84,7 +84,7 @@ COBA.HttpObserver = {
     var win = getWindowForRequest(httpChannel);
     var tab = cobaUtils.getTabFromWindow(win);
     var isWindowURI = httpChannel.loadFlags & Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI;
-    if (isWindowURI) {
+    if (isWindowURI && tab) {
       var url = httpChannel.URI.spec;
       var skipDomain = tab.getAttribute("skipDomain");
       if (skipDomain && skipDomain == COBA.getUrlDomain(url).toLowerCase()) {
