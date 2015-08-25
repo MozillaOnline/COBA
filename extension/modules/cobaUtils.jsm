@@ -1,26 +1,13 @@
-/*
-This file is part of Fire-IE.
-
-Fire-IE is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Fire-IE is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Fire-IE.  If not, see <http://www.gnu.org/licenses/>.
-*/
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 let EXPORTED_SYMBOLS = ['cobaUtils'];
-let {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://coba/logger.jsm");
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://coba/logger.jsm');
 
 let cobaUtils = {
   getTabAttributeJSON: function(tab, name) {
@@ -40,7 +27,7 @@ let cobaUtils = {
   },
 
   getChromeWindow: function() {
-    let chromeWin = Services.wm.getMostRecentWindow("navigator:browser");
+    let chromeWin = Services.wm.getMostRecentWindow('navigator:browser');
     return chromeWin;
   },
 
@@ -91,7 +78,7 @@ let cobaUtils = {
  */
 cobaUtils.Strings = {};
 [
-  ["global", "chrome://coba/locale/global.properties"], ].forEach(function(aStringBundle) {
+  ['global', 'chrome://coba/locale/global.properties'], ].forEach(function(aStringBundle) {
   let[name, bundle] = aStringBundle;
   XPCOMUtils.defineLazyGetter(cobaUtils.Strings, name, function() {
     return Services.strings.createBundle(bundle);

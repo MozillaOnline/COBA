@@ -1,4 +1,8 @@
 <?xml version="1.0"?>
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 <?xml-stylesheet href="chrome://coba/skin/coba.css" type="text/css"?>
 
 <!DOCTYPE window [
@@ -8,7 +12,7 @@
 
 <overlay id="cobaOverlay"
    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	 xmlns:html="http://www.w3.org/1999/xhtml">
+   xmlns:html="http://www.w3.org/1999/xhtml">
 
 <script type="application/x-javascript" src="chrome://coba/content/common.js" />
 <script type="application/x-javascript" src="chrome://coba/content/CookieObserver.js" />
@@ -16,34 +20,33 @@
 <script type="application/x-javascript" src="chrome://coba/content/overlay.js" />
 
 <commandset id="mainCommandSet">
-	<command id="cmd_cobaToggle" oncommand="COBA.switchEngine();" />
+  <command id="cmd_cobaToggle" oncommand="COBA.switchEngine();" />
 </commandset>
 
 <keyset id="mainKeyset">
-	<key id="key_cobaToggle" command="cmd_cobaToggle"/>
+  <key id="key_cobaToggle" command="cmd_cobaToggle"/>
 </keyset>
 
 <!-- urlbar switch button -->
 <textbox id="urlbar">
-	 <toolbarbutton id="coba-urlbar-switch" hidden="true" insertbefore="urlbar-go-button"
-									onclick="COBA.clickSwitchButton(event);" tooltip="coba-urlbar-switch-tooltip" engine="fx">
-			<image id="coba-urlbar-switch-image" class="coba-status-image"/>
-			<label id="coba-urlbar-switch-label"/>
-			<!-- tooltips -->
-			<tooltip id="coba-urlbar-switch-tooltip" noautohide="true" orient="vertical" position="before_start" style="padding:2px;">
-			 <vbox>
-				 <label value="&coba.urlbar.switch.tooltip1;" style="margin:2px;"/>
-				 <label id="coba-urlbar-switch-tooltip2" style="margin:2px;"/>
-				 <label value="&coba.urlbar.switch.tooltip3;" style="margin:2px;"/>
-			 </vbox>
-			</tooltip>
-	 </toolbarbutton>
+  <toolbarbutton id="coba-urlbar-switch" hidden="true" insertbefore="urlbar-go-button"
+                 onclick="COBA.clickSwitchButton(event);" tooltip="coba-urlbar-switch-tooltip" engine="fx">
+    <image id="coba-urlbar-switch-image" class="coba-status-image"/>
+    <label id="coba-urlbar-switch-label"/>
+    <!-- tooltips -->
+    <tooltip id="coba-urlbar-switch-tooltip" noautohide="true" orient="vertical" position="before_start" style="padding:2px;">
+      <vbox>
+        <label value="&coba.urlbar.switch.tooltip1;" style="margin:2px;"/>
+        <label id="coba-urlbar-switch-tooltip2" style="margin:2px;"/>
+        <label value="&coba.urlbar.switch.tooltip3;" style="margin:2px;"/>
+      </vbox>
+    </tooltip>
+  </toolbarbutton>
 </textbox>
 <hbox id="urlbar-icons">
   <image id="coba-urlbar-icon" class="urlbar-icon" insertafter="page-report-button"
          hidden="true"
-         tooltiptext="&coba.urlbar.switch.tooltip0;"
-         />
+         tooltiptext="&coba.urlbar.switch.tooltip0;"/>
 </hbox>
 
 <!-- Popup menus -->

@@ -14,17 +14,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Fire-IE.  If not, see <http://www.gnu.org/licenses/>.
 */
-var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
-Cu.import("resource://coba/cobaUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/ctypes.jsm");
+const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
+
+Cu.import('resource://coba/cobaUtils.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/ctypes.jsm');
 
 
-/**
- * @namespace
- */
-if (typeof(COBA) == "undefined") {
+if (typeof(COBA) == 'undefined') {
   var COBA = {};
 }
 
@@ -35,6 +33,7 @@ if (typeof(COBA) == "undefined") {
  * 64bit.
  * ctypes.default_abi is more universal, but don't works in 32bit callback functions.
  */
+
 let CallBackABI = ctypes.stdcall_abi;
 let WinABI = ctypes.winapi_abi;
 if (ctypes.size_t.size == 8) {
@@ -42,7 +41,7 @@ if (ctypes.size_t.size == 8) {
   WinABI = ctypes.default_abi;
 }
 
-let wininetDll = ctypes.open("Wininet.dll");
+let wininetDll = ctypes.open('Wininet.dll');
 
 /**
  * BOOL InternetSetCookie(
@@ -76,7 +75,7 @@ COBA.IECookieManager = {
   saveCookie: function(cookie2, isPrivate) {
     let hostname = cookie2.host.trim();
     // Strip off beginning dot in hostname
-    if (hostname.substring(0, 1) == ".")
+    if (hostname.substring(0, 1) == '.')
     {
       hostname = hostname.substring(1);
     }
@@ -86,19 +85,19 @@ COBA.IECookieManager = {
      * http://baidu.com before it can be recognized
      */
     let url = (cookie2.isSecure ? 'https://' : 'http://') + hostname + cookie2.path;
-    let cookieData = cookie2.name + "=" + cookie2.value + "; domain=" + cookie2.host + "; path=" + cookie2.path;
+    let cookieData = cookie2.name + '=' + cookie2.value + '; domain=' + cookie2.host + '; path=' + cookie2.path;
     // Force the cookie to be session cookie if we synchronized it from private browsing windows
     if (cookie2.expires > 0 && !isPrivate)
     {
-      cookieData += "; expires=" + this.getExpiresString(cookie2.expires);
+      cookieData += '; expires=' + this.getExpiresString(cookie2.expires);
     }
     if (cookie2.isSecure)
     {
-      cookieData += "; secure";
+      cookieData += '; secure';
     }
     if (cookie2.isHttpOnly)
     {
-      cookieData +="; httponly";
+      cookieData +='; httponly';
     }
     let ret = InternetSetCookieW(url, NULL, cookieData);
     if (!ret)
@@ -114,7 +113,7 @@ COBA.IECookieManager = {
   },
 
   deleteCookie: function(cookie2) {
-    throw "Not implemented!";
+    throw 'Not implemented!';
   },
 
   getExpiresString: function(expiresInSeconds) {
@@ -127,11 +126,11 @@ COBA.IECookieManager = {
 
 COBA.CookieObserver = {
   register: function() {
-    Services.obs.addObserver(this, "cookie-changed", false);
+    Services.obs.addObserver(this, 'cookie-changed', false);
   },
 
   unregister: function() {
-    Services.obs.removeObserver(this, "cookie-changed");
+    Services.obs.removeObserver(this, 'cookie-changed');
   },
 
   // nsIObserver
@@ -166,10 +165,10 @@ COBA.CookieObserver = {
         }
         break;
       case 'cleared':
-//        cobaUtils.LOG('[logCookie cleared]');
+        // cobaUtils.LOG('[logCookie cleared]');
         break;
       case 'reload':
-//        cobaUtils.LOG('[logCookie reload]');
+        // cobaUtils.LOG('[logCookie reload]');
         break;
     }
   },

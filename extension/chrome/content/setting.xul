@@ -1,6 +1,8 @@
 <?xml version="1.0" ?>
-<!-- // Updates: // // 2/24/10: ietab.net: Converted to new coba namespace.
-// -->
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 <?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
 <!DOCTYPE window SYSTEM "chrome://coba/locale/coba.dtd">
 <dialog id="coba-dialog" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -15,7 +17,6 @@
       <tab label="&coba.settings.filter.official.label;" />
     </tabs>
     <tabpanels>
-    <!-- Filter Tab 网址过滤-->
       <tabpanel>
         <vbox flex="1">
           <hbox align="center">
@@ -42,7 +43,6 @@
           </hbox>
         </vbox>
       </tabpanel>
-    <!-- 订阅 -->
       <tabpanel>
         <vbox flex="1">
           <hbox align="center">
@@ -78,6 +78,4 @@
     <button dlgtype="extra1" id="myApply" label="&coba.settings.apply;" />
     <button dlgtype="cancel" id="myCancel" />
   </hbox>
-  <popupset>
-  </popupset>
 </dialog>

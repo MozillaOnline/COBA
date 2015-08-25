@@ -15,16 +15,13 @@ You should have received a copy of the GNU General Public License
 along with Fire-IE.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
+const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
-Cu.import("resource://gre/modules/NetUtil.jsm");
-Cu.import("resource://coba/cobaUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
+Cu.import('resource://gre/modules/NetUtil.jsm');
+Cu.import('resource://coba/cobaUtils.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
 
-/**
- * @namespace
- */
-if (typeof(COBA) == "undefined") {
+if (typeof(COBA) == 'undefined') {
   var COBA = {};
 }
 
@@ -54,7 +51,7 @@ function getWebProgressForRequest(request) {
   return null;
 };
 
-function getWindowForRequest(request){
+function getWindowForRequest(request) {
   return getWindowForWebProgress(getWebProgressForRequest(request));
 }
 
@@ -80,13 +77,13 @@ COBA.HttpObserver = {
   },
 
   onModifyRequest: function(subject) {
-    var httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
-    var win = getWindowForRequest(httpChannel);
-    var tab = cobaUtils.getTabFromWindow(win);
-    var isWindowURI = httpChannel.loadFlags & Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI;
+    let httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
+    let win = getWindowForRequest(httpChannel);
+    let tab = cobaUtils.getTabFromWindow(win);
+    let isWindowURI = httpChannel.loadFlags & Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI;
     if (isWindowURI && tab) {
-      var url = httpChannel.URI.spec;
-      var skipDomain = tab.getAttribute("skipDomain");
+      let url = httpChannel.URI.spec;
+      let skipDomain = tab.getAttribute('skipDomain');
       if (skipDomain && skipDomain == COBA.getUrlDomain(url).toLowerCase()) {
         return ;
       }
@@ -96,18 +93,18 @@ COBA.HttpObserver = {
         subject.cancel(Cr.NS_BINDING_SUCCEEDED);
 
         // http headers
-        var headers = this._getAllRequestHeaders(httpChannel);
+        let headers = this._getAllRequestHeaders(httpChannel);
 
         // post data
-        var post = "";
-        var uploadChannel = subject.QueryInterface(Ci.nsIUploadChannel);
+        let post = '';
+        let uploadChannel = subject.QueryInterface(Ci.nsIUploadChannel);
         if (uploadChannel && uploadChannel.uploadStream) {
-          var len = uploadChannel.uploadStream.available();
+          let len = uploadChannel.uploadStream.available();
           post = NetUtil.readInputStreamToString(uploadChannel.uploadStream, len);
         }
 
         // 通过Tab的Attribute传送http header和post data参数
-        var param = {headers: headers, post: post};
+        let param = {headers: headers, post: post};
         COBA.setTabAttributeJSON(tab, COBA.navigateParamsAttr, param);
 
         tab.linkedBrowser.loadURI(COBA.getCOBAURL(url));
@@ -116,7 +113,7 @@ COBA.HttpObserver = {
   },
 
   _getAllRequestHeaders: function(httpChannel) {
-      var visitor = function() {
+      let visitor = function() {
         this.headers = "";
       };
       visitor.prototype.visitHeader = function(aHeader, aValue) {
@@ -126,9 +123,9 @@ COBA.HttpObserver = {
           aValue = aValue.replace(/rv:[0-9.]+/i, 'rv:20.0').replace(/Firefox\/[0-9.]+/i, 'Firefox/20.0');
         }
 
-        this.headers += aHeader + ":" + aValue + "\r\n";
+        this.headers += aHeader + ':' + aValue + '\r\n';
       };
-      var v = new visitor();
+      let v = new visitor();
       httpChannel.visitRequestHeaders(v);
       return v.headers;
   },
@@ -138,21 +135,20 @@ COBA.HttpObserver = {
          && !COBA.isFirefoxOnly(url)
          && watcher.isMatchFilterList(url);
   }
-}
+};
 
 var watcher = {
-
    isCOBAURL: function(url) {
       if (!url) return false;
       return (url.indexOf(COBA.containerUrl) == 0);
    },
 
    isOfficialFilterEnabled: function() {
-      return (Services.prefs.getBoolPref("extensions.coba.official.filter", true));
+      return (Services.prefs.getBoolPref('extensions.coba.official.filter', true));
    },
 
    isFilterEnabled: function() {
-      return (Services.prefs.getBoolPref("extensions.coba.filter", true));
+      return (Services.prefs.getBoolPref('extensions.coba.filter', true));
    },
 /*
    isFilterEnabled: function() {
@@ -160,73 +156,54 @@ var watcher = {
    },
 */
    getAllPrefFilterList: function() {  // add official filter list
-      var s = "";
+      let s = '';
       if(this.isFilterEnabled())
-        s =  Services.prefs.getCharPref("extensions.coba.filterlist", "") + " ";
+        s =  Services.prefs.getCharPref('extensions.coba.filterlist', '') + ' ';
       if(this.isOfficialFilterEnabled())
-        s += Services.prefs.getCharPref("extensions.coba.official.filterlist", "");
-      return ((s == "") ? [] : s.split(" "));
+        s += Services.prefs.getCharPref('extensions.coba.official.filterlist', '');
+      return ((s == '') ? [] : s.split(' '));
    },
 
    getPrefOfficialFilterList: function() {  // add official filter list
-      var s = "";
+      let s = '';
       if(this.isOfficialFilterEnabled())
-        s = Services.prefs.getCharPref("extensions.coba.official.filterlist", "");
-      return ((s == "") ? [] : s.split(" "));
+        s = Services.prefs.getCharPref('extensions.coba.official.filterlist', '');
+      return ((s == '') ? [] : s.split(' '));
    },
 
    getPrefFilterList: function() {
-      var s = "";
+      var s = '';
       if(this.isFilterEnabled())
-        s =  Services.prefs.getCharPref("extensions.coba.filterlist", "");
-      return ((s == "") ? [] : s.split(" "));
-   },
-/*
-   getPrefFilterList: function() {
-      var s = Services.prefs.getCharPref("extensions.coba.filterlist", null);
-      return (s ? s.split(" ") : "");
+        s =  Services.prefs.getCharPref('extensions.coba.filterlist', '');
+      return ((s == '') ? [] : s.split(' '));
    },
 
-   setPrefFilterList: function(list) {
-      Services.prefs.setCharPref("extensions.coba.filterlist", list.join(" "));
-   },
-*/
    isMatchURL: function(url, pattern) {
       if ((!pattern) || (pattern.length==0)) return false;
-      var retest = /^\/(.*)\/$/.exec(pattern);
+      let retest = /^\/(.*)\/$/.exec(pattern);
       if (retest) {
          pattern = retest[1];
       } else {
-         pattern = pattern.replace(/\\/g, "/");
-         var m = pattern.match(/^(.+:\/\/+[^\/]+\/)?(.*)/);
-         m[1] = (m[1] ? m[1].replace(/\./g, "\\.").replace(/\?/g, "[^\\/]?").replace(/\*/g, "[^\\/]*") : "");
-         m[2] = (m[2] ? m[2].replace(/\./g, "\\.").replace(/\+/g, "\\+").replace(/\?/g, "\\?").replace(/\*/g, ".*") : "");
+         pattern = pattern.replace(/\\/g, '/');
+         let m = pattern.match(/^(.+:\/\/+[^\/]+\/)?(.*)/);
+         m[1] = (m[1] ? m[1].replace(/\./g, '\\.').replace(/\?/g, '[^\\/]?').replace(/\*/g, '[^\\/]*') : '');
+         m[2] = (m[2] ? m[2].replace(/\./g, '\\.').replace(/\+/g, '\\+').replace(/\?/g, '\\?').replace(/\*/g, '.*') : '');
          pattern = m[1] + m[2];
-         pattern = "^" + pattern + "$";
+         pattern = '^' + pattern + '$';
       }
-      var reg = new RegExp(pattern.toLowerCase());
+      let reg = new RegExp(pattern.toLowerCase());
       return (reg.test(url.toLowerCase()));
    },
 
    isMatchFilterList: function(url) {
-      var aList = this.getAllPrefFilterList();
-      for (var i=0; i<aList.length; i++) {
-         var item = aList[i].split("\b");
-         var rule = item[0];
-         var enabled = (item.length == 1);
+      let aList = this.getAllPrefFilterList();
+      for (let i = 0; i < aList.length; i++) {
+         let item = aList[i].split('\b');
+         let rule = item[0];
+         let enabled = (item.length == 1);
          if (enabled && this.isMatchURL(url, rule))
            return(true);
       }
       return(false);
-/*
-      var aList = this.getPrefFilterList();
-      for (var i=0; i<aList.length; i++) {
-         var item = aList[i].split("\b");
-         var rule = item[0];
-         var enabled = (item.length == 1);
-         if (enabled && this.isMatchURL(url, rule)) return(true);
-      }
-      return(false);
-*/
    },
-}
+};

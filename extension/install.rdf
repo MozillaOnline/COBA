@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
-<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
-
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
-
     <em:id>coba@mozilla.com.cn</em:id>
     <em:name>COBA</em:name>
     <em:version>1.0.27</em:version>
@@ -19,8 +18,6 @@
     <em:targetPlatform>WINNT</em:targetPlatform>
     <em:updateURL>http://g-fox.cn/chinaedition/addons/coba/update.rdf</em:updateURL>
     <em:updateKey>MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDI9oBz+hSfHlNBrgdtc60mLujdpK4sCVDH1rD+1bh7++ni8ltJD0trCfhUKKiC234iMhHBgcr/bD9kYUbv7nlCz0lqPKM3DZC4eSgLsk8m077fk1Mmob3Pw5ZZlbCO9PWmwH2h/n9oUdx1YvrKN1+e2cocckcw4uGqalFGfYa9ywIDAQAB</em:updateKey>
-
-
     <!-- Firefox -->
     <em:targetApplication>
       <Description>
@@ -29,7 +26,6 @@
         <em:maxVersion>40.*</em:maxVersion>
       </Description>
     </em:targetApplication>
-
     <em:localized>
       <Description>
         <em:locale>zh-CN</em:locale>
@@ -44,6 +40,5 @@
         <em:description>使用IE控件访问网银</em:description>
       </Description>
     </em:localized>
-
   </Description>
 </RDF>
