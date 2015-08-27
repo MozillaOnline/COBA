@@ -112,17 +112,6 @@ COBA.removeEventListenerByTagName = function (tag, type, listener) {
   }
 }
 
-//-----------------------------------------------------------------------------
-/** 替换函数部分源码 */
-/*
-COBA.hookCode = function (orgFunc, orgCode, myCode) {
-  try {
-    if (eval(orgFunc).toString() == eval(orgFunc + "=" + eval(orgFunc).toString().replace(orgCode, myCode))) throw orgFunc;
-  } catch (e) {
-    cobaUtils.ERROR("Failed to hook function: " + orgFunc);
-  }
-}
-*/
 /** 将attribute值V替换为myFunc+V*/
 COBA.hookAttr = function (parentNode, attrName, myFunc) {
   if (typeof (parentNode) == "string") parentNode = document.getElementById(parentNode);
@@ -130,26 +119,6 @@ COBA.hookAttr = function (parentNode, attrName, myFunc) {
     parentNode.setAttribute(attrName, myFunc + parentNode.getAttribute(attrName));
   } catch (e) {
     cobaUtils.ERROR("Failed to hook attribute: " + attrName);
-  }
-}
-
-/** 在Property的getter和setter代码头部增加一段代码*/
-COBA.hookProp = function (parentNode, propName, myGetter, mySetter) {
-  var oGetter = parentNode.__lookupGetter__(propName);
-  var oSetter = parentNode.__lookupSetter__(propName);
-  if (oGetter && myGetter) myGetter = oGetter.toString().replace(/{/, "{" + myGetter.toString().replace(/^.*{/, "").replace(/.*}$/, ""));
-  if (oSetter && mySetter) mySetter = oSetter.toString().replace(/{/, "{" + mySetter.toString().replace(/^.*{/, "").replace(/.*}$/, ""));
-  if (!myGetter) myGetter = oGetter;
-  if (!mySetter) mySetter = oSetter;
-  if (myGetter) try {
-    eval('parentNode.__defineGetter__(propName, ' + myGetter.toString() + ');');
-  } catch (e) {
-    cobaUtils.ERROR("Failed to hook property Getter: " + propName);
-  }
-  if (mySetter) try {
-    eval('parentNode.__defineSetter__(propName, ' + mySetter.toString() + ');');
-  } catch (e) {
-    cobaUtils.ERROR("Failed to hook property Setter: " + propName);
   }
 }
 

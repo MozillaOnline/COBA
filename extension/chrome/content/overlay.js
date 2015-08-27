@@ -624,23 +624,26 @@ COBA.onResize = function(e) {
 
 COBA.hookBrowserGetter = function(aBrowser) {
   if (aBrowser.localName != "browser") aBrowser = aBrowser.getElementsByTagNameNS(kXULNS, "browser")[0];
-  // hook aBrowser.currentURI, 在IE引擎内部打开URL时, Firefox也能获取改变后的URL
-  COBA.hookProp(aBrowser, "currentURI", function() {
-    var uri = COBA.getCurrentIeTabURI(this);
+
+  let browserGetCurrentURI = aBrowser.__lookupGetter__('currentURI');
+  aBrowser.__defineGetter__('currentURI', function() {
+    let uri = COBA.getCurrentIeTabURI(this);
     if (uri) return uri;
+    return browserGetCurrentURI.apply(aBrowser, arguments);
   });
-  // hook aBrowser.sessionHistory
-  // @todo 有什么用？
-  COBA.hookProp(aBrowser, "sessionHistory", function() {
-    var history = this.webNavigation.sessionHistory;
-    var uri = COBA.getCurrentIeTabURI(this);
+
+  let browserGetSessionHistory = aBrowser.__lookupGetter__('sessionHistory');
+  aBrowser.__defineGetter__('sessionHistory', function() {
+    let history = this.webNavigation.sessionHistory;
+    let uri = COBA.getCurrentIeTabURI(this);
     if (uri) {
-      var entry = history.getEntryAtIndex(history.index, false);
+      let entry = history.getEntryAtIndex(history.index, false);
       if (entry.URI.spec != uri.spec) {
         entry.QueryInterface(Ci.nsISHEntry).setURI(uri);
         if (this.parentNode.__SS_data) delete this.parentNode.__SS_data;
       }
     }
+    return browserGetSessionHistory.apply(aBrowser, arguments);
   });
 }
 
@@ -656,13 +659,16 @@ COBA.hookURLBarSetter = function(aURLBar) {
     }
   }
 
-  COBA.hookProp(aURLBar, "value", null, function() {
+  let oGetter = aURLBar.__lookupGetter__('value');
+  let oSetter = aURLBar.__lookupSetter__('value');
+  aURLBar.__defineSetter__('value', function() {
     this.isModeIE = arguments[0] && (arguments[0].substr(0, COBA.containerUrl.length) == COBA.containerUrl);
     if (this.isModeIE) {
       arguments[0] = COBA.getActualUrl(arguments[0]);
-      // if (arguments[0] == "about:blank") arguments[0] = "";
     }
+    return oSetter.apply(aURLBar, arguments);
   });
+  aURLBar.__defineGetter__('value', oGetter);
 }
 
 COBA.hookCodeAll = function() {
