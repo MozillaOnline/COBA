@@ -705,9 +705,10 @@ COBA.hookCodeAll = function() {
   };
 
   // COBA.hookCode("gBrowser.addTab", "return t;", "COBA.hookBrowserGetter(t.linkedBrowser); $&");
-  let origAddTab = gBrowser.addTab;
+  // Conflict with tabimprovelite, set it as an global value
+  window.COBA.origAddTab = gBrowser.addTab;
   gBrowser.addTab = function() {
-    let tab = origAddTab.apply(gBrowser, arguments);
+    let tab = window.COBA.origAddTab.apply(gBrowser, arguments);
     COBA.hookBrowserGetter(tab.linkedBrowser);
     return tab;
   };
@@ -802,7 +803,7 @@ COBA.hookCodeAll = function() {
   let origGoDoCommand = goDoCommand;
   goDoCommand = function() {
     if(COBA.goDoCommand(arguments[0])) return;
-    return origGoDoCommand();
+    return origGoDoCommand.apply(window, arguments);
   };
 
   COBA.hookAttr("cmd_find", "oncommand", "if(COBA.goDoCommand('Find')) return;");
