@@ -701,7 +701,7 @@ COBA.hookCodeAll = function() {
       this._uri = makeURI(COBA.getActualUrl(newURI.spec));
     });
 
-    return orgiUpdateStarState.apply(BookmarkingUI);
+    return orgiUpdateStarState.apply(BookmarkingUI, arguments);
   };
 
   // COBA.hookCode("gBrowser.addTab", "return t;", "COBA.hookBrowserGetter(t.linkedBrowser); $&");
@@ -729,42 +729,42 @@ COBA.hookCodeAll = function() {
   let orgiBrowserBack = BrowserBack;
   BrowserBack = function() {
     if(COBA.goDoCommand('Back')) return;
-    return orgiBrowserBack();
+    return orgiBrowserBack.apply(window, arguments);
   };
 
   // COBA.hookCode("BrowserForward", /{/, "$& if(COBA.goDoCommand('Forward')) return;");
   let origBrowserForward = BrowserForward;
   BrowserForward = function() {
     if(COBA.goDoCommand('Forward')) return;
-    return origBrowserForward();
+    return origBrowserForward.apply(window, arguments);
   };
 
   // COBA.hookCode("BrowserStop", /{/, "$& if(COBA.goDoCommand('Stop')) return;");
   let origBrowserStop = BrowserStop;
   BrowserStop = function() {
     if(COBA.goDoCommand('Stop')) return;
-    return origBrowserStop();
+    return origBrowserStop.apply(window, arguments);
   };
 
   // COBA.hookCode("BrowserReload", /{/, "$& if(COBA.goDoCommand('Refresh')) return;");
   let origBrowserReload = BrowserReload;
   BrowserReload = function() {
     if(COBA.goDoCommand('Refresh')) return;
-    return origBrowserReload();
+    return origBrowserReload.apply(window, arguments);
   };
 
   // COBA.hookCode("BrowserReloadSkipCache", /{/, "$& if(COBA.goDoCommand('Refresh')) return;");
   let origBrowserReloadSkipCache = BrowserReloadSkipCache;
   BrowserReloadSkipCache = function() {
     if(COBA.goDoCommand('Refresh')) return;
-    return origBrowserReloadSkipCache();
+    return origBrowserReloadSkipCache.apply(window, arguments);
   };
 
   // COBA.hookCode("saveDocument", /{/, "$& if(COBA.goDoCommand('SaveAs')) return;");
   let orgiSaveDocument = saveDocument;
   saveDocument = function() {
     if(COBA.goDoCommand('SaveAs')) return;
-    return orgiSaveDocument();
+    return orgiSaveDocument.apply(window, arguments);
   };
 
   // COBA.hookCode("MailIntegration.sendMessage", /{/, "$& var pluginObject = COBA.getPluginObject(); if(pluginObject){ arguments[0]=pluginObject.URL; arguments[1]=pluginObject.Title; }"); // @todo 发送邮件？
@@ -814,7 +814,7 @@ COBA.hookCodeAll = function() {
   let origDisplaySecurityInfo = displaySecurityInfo;
   displaySecurityInfo = function() {
     if(COBA.goDoCommand('DisplaySecurityInfo')) return;
-    return origDisplaySecurityInfo();
+    return origDisplaySecurityInfo.apply(window, arguments);
   };
 }
 
