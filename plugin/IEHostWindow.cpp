@@ -26,6 +26,7 @@ along with Fire-IE.  If not, see <http://www.gnu.org/licenses/>.
 #include "PluginApp.h"
 #include "IEHostWindow.h"
 #include "plugin.h"
+#include "Utils/App.h"
 
 
 
@@ -95,7 +96,7 @@ CIEHostWindow* CIEHostWindow::FromInternetExplorerServer(HWND hwndIEServer)
 	}
 
 	// 从Window Long中取出CIEHostWindow对象指针 
-	CIEHostWindow* pInstance = reinterpret_cast<CIEHostWindow* >(::GetWindowLongPtrA(hwnd, GWLP_USERDATA));
+	CIEHostWindow* pInstance = reinterpret_cast<CIEHostWindow* >(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	return pInstance;
 }
 
@@ -205,7 +206,6 @@ BOOL CIEHostWindow::OnInitDialog()
 
 	// 保存CIEHostWindow对象指针，让BrowserHook::WindowMessageHook可以通过Window handle找到对应的CIEHostWindow对象
 	::SetWindowLongPtr(GetSafeHwnd(), GWLP_USERDATA, reinterpret_cast<LONG>(this)); 
-
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
 
@@ -256,6 +256,62 @@ void CIEHostWindow::UninitIE()
 	s_csCookieIEWindowMap.Unlock();
 }
 
+LRESULT CIEHostWindow::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
+{
+	if (Utils::App::GetApplication() != Utils::App::OOPP)
+		return CDialog::WindowProc(message, wParam, lParam);
+
+	// DefWindowProc propagates messages to parent window by SendMessage.
+	// In OOPP mode, this can potentially deadlock firefox since we can't RPC into the
+	// plugin during SendMessage.
+	// Here we process such messages and make sure they won't block forever.
+	LRESULT ret = 0;
+	bool bShouldReturn = false;
+	switch (message)
+	{
+	case WM_APPCOMMAND:
+		ret = TRUE;
+		bShouldReturn = true;
+		{
+			HWND hwndFirefox = GetTopMozillaWindowClassWindow(GetSafeHwnd());
+			if (hwndFirefox)
+				::PostMessage(hwndFirefox, message, wParam, lParam);
+		}
+		break;
+	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL:
+		ret = 0;
+		bShouldReturn = true;
+		break;
+	case WM_MOUSEACTIVATE:
+		ret = MA_ACTIVATE;
+		bShouldReturn = true;
+		// Close popups in Firefox main window
+		//::PostMessage((HWND)wParam, WM_KILLFOCUS, (WPARAM)GetSafeHwnd(), NULL);
+		{
+			// Must send a message to the child MozillaWindowClass window to transfer input focus.
+			// DefWindowProc uses blocking SendMessage, which we don't want
+			DWORD_PTR dwResult;
+			HWND hwndChildMozillaWindow = GetChildMozillaWindowClassWindow(GetSafeHwnd());
+			if (hwndChildMozillaWindow && 
+				::SendMessageTimeout(hwndChildMozillaWindow, WM_MOUSEACTIVATE, wParam, lParam,
+				SMTO_ABORTIFHUNG | SMTO_BLOCK, 200, &dwResult))
+			{
+				ret = dwResult;
+			}
+		}
+		break;
+	case WM_SETCURSOR:
+		ret = FALSE;
+		bShouldReturn = true;
+		break;
+	}
+
+	if (bShouldReturn)
+		return ret;
+
+	return CDialog::WindowProc(message, wParam, lParam);
+}
 
 void CIEHostWindow::OnSize(UINT nType, int cx, int cy)
 {
@@ -629,12 +685,92 @@ HWND GetTopMozillaWindowClassWindow(HWND hwndIECtrl)
 	return NULL;
 }
 
+// Returns the real parent window
+// Same as GetParent(), but doesn't return the owner
+static HWND GetRealParent(HWND hWnd)
+{
+	HWND hParent;
+
+	hParent = GetAncestor(hWnd, GA_PARENT);
+	if (!hParent || hParent == GetDesktopWindow())
+		return NULL;
+
+	return hParent;
+}
+
+template <class T, class R>
+static int ArrayFind(const T* arrayBegin, int arrayLength, const R& toFind)
+{
+	for (int i = 0; i < arrayLength; i++)
+	{
+		if ((*(arrayBegin + i)) == toFind)
+			return i;
+	}
+	return -1;
+}
+
+static HWND GetParentWindowForAnyClassName(HWND hwnd, const CString targetClassNames[],
+									int nTargetClassNames, int maxLevelsUp, CString& className)
+{
+	int levels = 0;
+	int index = -1;
+	HWND hwndParent = hwnd;
+	while (hwndParent && levels <= maxLevelsUp && index < 0)
+	{
+		hwnd = hwndParent;
+		hwndParent = GetRealParent(hwnd);
+
+		int nCopied = GetClassName(hwnd, className.GetBuffer(MAX_PATH), MAX_PATH);
+		className.ReleaseBuffer(nCopied);
+
+		if (nCopied == 0)
+			return NULL;
+
+		index = ArrayFind(targetClassNames, nTargetClassNames, className);
+
+		levels++;
+	}
+
+	return (index < 0) ? NULL : hwnd;
+}
+
+// Finder for the child MozillaWindowClass window
+HWND GetChildMozillaWindowClassWindow(HWND hwndAnyChild)
+{
+	static const CString targetClassNames[] = { _T("MozillaWindowClass") };
+	CString className;
+	HWND hwnd = GetParentWindowForAnyClassName(hwndAnyChild, targetClassNames, 1, 10, className);
+	// Make sure it's actually the child MozillaWindowClass window, not the top-level one.
+	return GetRealParent(hwnd) ? hwnd : NULL;
+}
+
 void CIEHostWindow::HandOverFocus()
 {
-	HWND hwndMessageTarget = GetMozillaContentWindow(m_hWnd);
+	/*HWND hwndMessageTarget = GetMozillaContentWindow(m_hWnd);
 	if (!hwndMessageTarget)
 	{
 		hwndMessageTarget = GetTopMozillaWindowClassWindow(m_hWnd);
+	}*/
+
+	HWND hwndMessageTarget = GetTopMozillaWindowClassWindow(GetSafeHwnd());
+
+	// Change the focus to the parent window of html document to kill its focus. 
+	if (m_ie.GetSafeHwnd())
+	{
+		CComQIPtr<IDispatch> pDisp;
+		pDisp.Attach(m_ie.get_Document());
+		if(pDisp) 
+		{
+			CComQIPtr<IHTMLDocument2> htmlDoc = pDisp;
+			if(htmlDoc) 
+			{
+				CComPtr<IHTMLWindow2> window;
+				if(SUCCEEDED(htmlDoc->get_parentWindow(&window)) && window) 
+				{
+					window->focus();
+				}
+			}
+		}
 	}
 
 	if ( hwndMessageTarget != NULL )

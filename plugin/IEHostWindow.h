@@ -47,7 +47,8 @@ namespace UserMessage
 // 对于插件，是放在 GeckoPluginWindow 窗口里，往上有一个 MozillaWindowClass，再往上是顶层的
 // MozillaWindowClass，我们的消息要发到顶层，所以再写一个查找的函数
 HWND GetTopMozillaWindowClassWindow(HWND hwndIECtrl);
-
+// Finder for the child MozillaWindowClass window
+HWND GetChildMozillaWindowClassWindow(HWND hwndAnyChild);
 
 // CIEHostWindow dialog
 
@@ -126,6 +127,7 @@ protected:
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
+	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam) override;
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg LRESULT OnUserMessage(WPARAM wParam, LPARAM lParam);
 	void OnCommandStateChange(long Command, BOOL Enable);

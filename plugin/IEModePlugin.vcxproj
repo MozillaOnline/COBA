@@ -308,6 +308,7 @@
     <ClCompile Include="Plugin\plugin.cpp" />
     <ClCompile Include="Plugin\ScriptablePluginObject.cpp" />
     <ClCompile Include="Plugin\ScriptablePluginObjectBase.cpp" />
+    <ClCompile Include="Utils\App.cpp" />
     <ClCompile Include="Utils\OS.cpp" />
     <ClCompile Include="Utils\URI.cpp" />
   </ItemGroup>
@@ -338,6 +339,7 @@
     <ClInclude Include="Plugin\pluginbase.h" />
     <ClInclude Include="Plugin\ScriptablePluginObject.h" />
     <ClInclude Include="Plugin\ScriptablePluginObjectBase.h" />
+    <ClInclude Include="Utils\App.h" />
     <ClInclude Include="Utils\OS.h" />
     <ClInclude Include="Utils\URI.h" />
   </ItemGroup>

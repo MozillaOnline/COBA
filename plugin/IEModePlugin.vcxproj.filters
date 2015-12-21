@@ -48,6 +48,9 @@
     <ClCompile Include="Cookie\CookieManager.cpp">
       <Filter>Cookie</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\App.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IECtrl.h" />
@@ -119,6 +122,9 @@
     </ClInclude>
     <ClInclude Include="Cookie\CookieManager.h">
       <Filter>Cookie</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\App.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
