@@ -103,15 +103,12 @@ COBA.getPluginObjectURL = function(aTab) {
  */
 COBA.getCurrentIeTabURI = function(aBrowser) {
   try {
-    var docShell = aBrowser.boxObject.QueryInterface(Ci.nsIBrowserBoxObject).docShell;
-    var wNav = docShell.QueryInterface(Ci.nsIWebNavigation);
-    if (wNav.currentURI && COBA.startsWith(wNav.currentURI.spec, COBA.containerUrl)) {
-      var pluginObject = wNav.document.getElementById(COBA.objectID);
-      if (pluginObject) {
-        if (pluginObject.wrappedJSObject) pluginObject = pluginObject.wrappedJSObject;
-        var url = pluginObject.URL;
-        if (url) {
-          return Services.io.newURI(COBA.containerUrl + encodeURI(url), null, null);
+    if (aBrowser.contentDocument && aBrowser.webNavigation && COBA.startsWith(aBrowser.webNavigation.currentURI.spec, COBA.containerUrl)) {
+      let obj = aBrowser.contentDocument.getElementById(COBA.objectID);
+      if (obj) {
+        var pluginObject = (obj.wrappedJSObject ? obj.wrappedJSObject : obj); // Ref: Safely accessing content DOM from chrome
+        if (pluginObject.URL) {
+          return Services.io.newURI(COBA.containerUrl + encodeURI(pluginObject.URL), null, null);
         }
       }
     }
@@ -396,6 +393,7 @@ COBA.onIEProgressChange = function(event) {
   if (progress == 0) gBrowser.userTypedValue = null;
   COBA.updateProgressStatus();
   COBA.updateAll();
+  COBA.focusIE();
 }
 
 /** 响应新开IE标签的消息*/
@@ -406,6 +404,7 @@ COBA.onNewIETab = function(event) {
   let tab = COBA.addIeTab(url);
   var param = {id: id};
   COBA.setTabAttributeJSON(tab, COBA.navigateParamsAttr, param);
+  COBA.focusIE();
 }
 
 COBA.onSecurityChange = function(security) {
