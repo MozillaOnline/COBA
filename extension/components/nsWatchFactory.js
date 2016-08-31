@@ -130,7 +130,12 @@ function askUser(window,finds) {
   return ret;
 }
 
-function checkConflict(window){
+function checkConflict(){
+  window = Services.wm.getMostRecentWindow("navigator:browser");
+  if (!window.setTimeout || !window.BrowserOpenAddonsMgr) {
+    return;
+  }
+
   window.setTimeout(function(){
   if(!Services.prefs.getBoolPref("extensions.coba.conflict.warning", true))
     return;
@@ -159,7 +164,6 @@ watchFactoryClass.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
                                          Ci.nsISupportsWeakReference]),
 
-  window: null,
   observe: function (aSubject, aTopic, aData) {
     switch (aTopic) {
     case "profile-after-change":
@@ -174,19 +178,11 @@ watchFactoryClass.prototype = {
       }
       setPref();
       Services.obs.addObserver(this, "quit-application", true);
-      Services.obs.addObserver(this, "domwindowopened", true);
       Services.obs.addObserver(this, "sessionstore-windows-restored", true);
-      break;
-    case "domwindowopened":
-      var window = aSubject;
-      this.window = window;
-      if(window.location.href != "chrome://browser/content/browser.xul")
-        return;
-      Services.obs.removeObserver(this, "domwindowopened");
       break;
     case "sessionstore-windows-restored":
       Services.obs.removeObserver(this, "sessionstore-windows-restored");
-      checkConflict(this.window);
+      checkConflict();
       break;
     case "quit-application":
       resetPref();

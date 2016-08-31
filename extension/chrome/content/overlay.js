@@ -374,7 +374,10 @@ COBA.updateProgressStatus = function() {
         if (aCurTotalProgress != mTabs[i].mProgress) {
           const wpl = Ci.nsIWebProgressListener;
           var aMaxTotalProgress = (aCurTotalProgress == -1 ? -1 : 100);
-          var aTabListener = gBrowser.mTabListeners[mTabs[i]._tPos];
+          // since Fx 46, https://bugzil.la/1238685
+          var aTabListener = gBrowser._tabListeners ?
+                             gBrowser._tabListeners.get(mTabs[i]) :
+                             gBrowser.mTabListeners[mTabs[i]._tPos];
           var aWebProgress = mTabs[i].linkedBrowser.webProgress;
           var aRequest = Services.io.newChannelFromURI(mTabs[i].linkedBrowser.currentURI);
           var aStateFlags = (aCurTotalProgress == -1 ? wpl.STATE_STOP : wpl.STATE_START) | wpl.STATE_IS_NETWORK;
