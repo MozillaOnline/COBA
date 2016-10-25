@@ -5,7 +5,7 @@
 
     <em:id>coba@mozilla.com.cn</em:id>
     <em:name>COBA</em:name>
-    <em:version>1.0.33</em:version>
+    <em:version>1.0.34</em:version>
     <em:description>China Online Banking Assistant for Mozilla/Firefox.</em:description>
     <em:creator>Mozilla Online Limited</em:creator>
     <em:homepageURL>http://www.firefox.com.cn/</em:homepageURL>
@@ -16,7 +16,7 @@
     <em:optionsURL>chrome://coba/content/setting.xul</em:optionsURL>
     <em:iconURL>chrome://coba/skin/logo.ico</em:iconURL>
     <em:unpack>true</em:unpack>
-    <em:targetPlatform>WINNT</em:targetPlatform>
+    <em:targetPlatform>WINNT_x86-msvc</em:targetPlatform>
     <em:updateURL>http://g-fox.cn/chinaedition/addons/coba/update.rdf</em:updateURL>
     <em:updateKey>MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDI9oBz+hSfHlNBrgdtc60mLujdpK4sCVDH1rD+1bh7++ni8ltJD0trCfhUKKiC234iMhHBgcr/bD9kYUbv7nlCz0lqPKM3DZC4eSgLsk8m077fk1Mmob3Pw5ZZlbCO9PWmwH2h/n9oUdx1YvrKN1+e2cocckcw4uGqalFGfYa9ywIDAQAB</em:updateKey>
 
