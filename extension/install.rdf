@@ -16,7 +16,7 @@
     <em:optionsURL>chrome://coba/content/setting.xul</em:optionsURL>
     <em:iconURL>chrome://coba/skin/logo.ico</em:iconURL>
     <em:unpack>true</em:unpack>
-    <em:multiprocessCompatible>false</em:multiprocessCompatible>
+    <em:multiprocessCompatible>true</em:multiprocessCompatible>
     <em:targetPlatform>WINNT_x86-msvc</em:targetPlatform>
     <em:updateURL>http://g-fox.cn/chinaedition/addons/coba/update.rdf</em:updateURL>
     <em:updateKey>MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDI9oBz+hSfHlNBrgdtc60mLujdpK4sCVDH1rD+1bh7++ni8ltJD0trCfhUKKiC234iMhHBgcr/bD9kYUbv7nlCz0lqPKM3DZC4eSgLsk8m077fk1Mmob3Pw5ZZlbCO9PWmwH2h/n9oUdx1YvrKN1+e2cocckcw4uGqalFGfYa9ywIDAQAB</em:updateKey>
@@ -26,8 +26,8 @@
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>31.0</em:minVersion>
-        <em:maxVersion>50.*</em:maxVersion>
+        <em:minVersion>45.0</em:minVersion>
+        <em:maxVersion>51.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 

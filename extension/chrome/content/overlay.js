@@ -577,13 +577,10 @@ COBA.getTabByDocument = function(doc) {
   return null;
 }
 
-/** 加载或显示页面时更新界面*/
-COBA.onPageShowOrLoad = function(e) {
+/** 显示页面时更新界面*/
+COBA.onPageShow = function(tab) {
   COBA.updateAll();
 
-  var doc = e.originalTarget;
-
-  var tab = COBA.getTabByDocument(doc);
   if (!tab) return;
 
   //
@@ -820,6 +817,16 @@ COBA.hookCodeAll = function() {
   };
 }
 
+COBA.receiveMessage = function(message) {
+  switch (message.name) {
+    case "PageVisibility:Show":
+      var tab = gBrowser.getTabForBrowser(message.target);
+      this.onPageShow(tab);
+      break;
+    default:
+      break;
+  }
+}
 
 COBA.addEventAll = function() {
   Services.obs.addObserver(COBA.HttpObserver, 'http-on-modify-request', false);
@@ -827,14 +834,16 @@ COBA.addEventAll = function() {
   COBA.Observer.register();
   COBA.addEventListener("tabContextMenu", "popupshowing", COBA.updateTabMenu);
 
-  COBA.addEventListener(window, "DOMContentLoaded", COBA.onPageShowOrLoad);
-  COBA.addEventListener(window, "pageshow", COBA.onPageShowOrLoad);
+  // e10s compat replacement of pageshow event listener
+  Services.mm.addMessageListener("PageVisibility:Show", this);
+  // for ordinary browsing, resize occurs in chrome and content simutaneously
   COBA.addEventListener(window, "resize", COBA.onResize);
 
   COBA.addEventListener(gBrowser.tabContainer, "TabSelect", COBA.onTabSelected);
 
   COBA.addEventListener("menu_EditPopup", "popupshowing", COBA.updateEditMenuItems);
 
+  // these events bubble from the container, which is loaded in chrome process
   COBA.addEventListener(window, "IeProgressChanged", COBA.onIEProgressChange);
   COBA.addEventListener(window, "NewIETab", COBA.onNewIETab);
   Services.obs.addObserver(COBA.switchToIEByDoc, "COBA-swith-to-ie", false);
@@ -847,8 +856,7 @@ COBA.removeEventAll = function() {
 
   COBA.removeEventListener("tabContextMenu", "popupshowing", COBA.updateTabMenu);
 
-  COBA.removeEventListener(window, "DOMContentLoaded", COBA.onPageShowOrLoad);
-  COBA.removeEventListener(window, "pageshow", COBA.onPageShowOrLoad);
+  Services.mm.removeMessageListener("PageVisibility:Show", this);
   COBA.removeEventListener(window, "resize", COBA.onResize);
 
   COBA.removeEventListener(gBrowser.tabContainer, "TabSelect", COBA.onTabSelected);
@@ -992,9 +1000,7 @@ COBA.clickUrlbarIcon = function (e) {
 // identity-box事件
 COBA.showPanel = function (e) {
   if (e.button == 0) {
-    var location = gBrowser.contentWindow.location;
-
-   if (location.href.indexOf(COBA.containerUrl) == 0) {
+    if (gBrowser.selectedBrowser.currentURI.spec.indexOf(COBA.containerUrl) == 0) {
       COBA.notify(e.originalTarget);
     }
   }

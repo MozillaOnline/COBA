@@ -73,9 +73,7 @@ COBA.getChromeWindow = function () {
  */
 COBA.getZoomLevel = function () {
   var aBrowser = (typeof (gBrowser) == "undefined") ? COBA.getChromeWindow().gBrowser : gBrowser;
-  var docViewer = aBrowser.selectedBrowser.markupDocumentViewer;
-  var zoomLevel = docViewer.fullZoom;
-  return zoomLevel;
+  return aBrowser.selectedBrowser.fullZoom;
 }
 
 /**
@@ -83,8 +81,7 @@ COBA.getZoomLevel = function () {
  */
 COBA.setZoomLevel = function (value) {
   var aBrowser = (typeof (gBrowser) == "undefined") ? COBA.getChromeWindow().gBrowser : gBrowser;
-  var docViewer = aBrowser.selectedBrowser.markupDocumentViewer;
-  docViewer.fullZoom = value;
+  aBrowser.selectedBrowser.fullZoom = value;
 }
 
 

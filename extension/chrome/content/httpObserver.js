@@ -28,36 +28,6 @@ if (typeof(COBA) == "undefined") {
   var COBA = {};
 }
 
-function getWindowForWebProgress(webProgress) {
-  try {
-    if (webProgress){
-      return webProgress.DOMWindow;
-    }
-  } catch (err) {
-  }
-  return null;
-}
-
-function getWebProgressForRequest(request) {
-  try {
-    if (request && request.notificationCallbacks)
-      return request.notificationCallbacks.getInterface(Ci.nsIWebProgress);
-  } catch (err ) {
-  }
-
-  try {
-    if (request && request.loadGroup && request.loadGroup.groupObserver)
-      return request.loadGroup.groupObserver.QueryInterface(Ci.nsIWebProgress);
-  } catch (err) {
-  }
-
-  return null;
-};
-
-function getWindowForRequest(request){
-  return getWindowForWebProgress(getWebProgressForRequest(request));
-}
-
 COBA.HttpObserver = {
   // nsISupports
   QueryInterface: function(iid) {
@@ -79,12 +49,27 @@ COBA.HttpObserver = {
       }
   },
 
+  _getTabFromHttpChannel: function(httpChannel) {
+    if (gBrowser.getBrowserForOuterWindowID &&
+        gBrowser.getTabForBrowser &&
+        httpChannel.loadInfo.parentOuterWindowID) {
+      var outerWindowID = httpChannel.loadInfo.parentOuterWindowID;
+      var browser = gBrowser.getBrowserForOuterWindowID(outerWindowID);
+      if (browser) {
+        return gBrowser.getTabForBrowser(browser);
+      }
+    }
+    return null;
+  },
+
   onModifyRequest: function(subject) {
     var httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
-    var win = getWindowForRequest(httpChannel);
-    var tab = cobaUtils.getTabFromWindow(win);
     var isWindowURI = httpChannel.loadFlags & Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI;
-    if (isWindowURI && tab) {
+    if (!isWindowURI) {
+      return;
+    }
+    var tab = this._getTabFromHttpChannel(httpChannel);
+    if (tab) {
       var url = httpChannel.URI.spec;
       var skipDomain = tab.getAttribute("skipDomain");
       if (skipDomain && skipDomain == COBA.getUrlDomain(url).toLowerCase()) {
