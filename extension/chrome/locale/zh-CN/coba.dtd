@@ -1,8 +1,6 @@
 <!ENTITY coba.switchButton.label "网银支付助手">
 
 <!ENTITY coba.urlbar.switch.tooltip0 "正在使用网银兼容模式">
-<!ENTITY coba.urlbar.switch.tooltip1 "切换浏览模式">
-<!ENTITY coba.urlbar.switch.tooltip3 "右键点击设置 网银支付助手 选项">
 <!ENTITY coba.urlbar.menuswitch.title.IE "切换至网银兼容模式">
 <!ENTITY coba.urlbar.menuswitch.title.Fx "切换回火狐浏览模式">
 <!ENTITY coba.urlbar.notify.title "网银支付助手">

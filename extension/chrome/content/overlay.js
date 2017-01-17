@@ -175,27 +175,14 @@ COBA.setUrlBarSwitchButtonStatus = function(isIEEngine) {
     btn.setAttribute("engine", (isIEEngine ? "ie" : "fx"));
   }
 
-  // 更新内核切换按钮文字
-  let label = document.getElementById("coba-urlbar-switch-label");
-  if (label) {
-    let labelId = isIEEngine ? "coba.urlbar.switch.label.ie" : "coba.urlbar.switch.label.fx";
-    label.value = Strings.global.GetStringFromName(labelId);
-  }
-  // 更新内核切换按钮tooltip文字
-  let tooltip = document.getElementById("coba-urlbar-switch-tooltip2");
-  if (tooltip) {
-    let tooltipId = isIEEngine ? "coba.urlbar.switch.tooltip2.ie" : "coba.urlbar.switch.tooltip2.fx";
-    tooltip.value = Strings.global.GetStringFromName(tooltipId);
-  }
   var btn_urlbar_icon = document.getElementById("coba-urlbar-icon");
   btn_urlbar_icon.setAttribute("hidden", (isIEEngine ? "false" : "true"));
 }
 
 // Tab popmenu状态与地址栏状态相同
 COBA.updateTabMenu = function() {
-  let urlbarButton = document.getElementById("coba-urlbar-switch");
   let menu = document.getElementById("coba-tab-switch");
-  if (urlbarButton && menu) {
+  if (menu) {
     if (COBA.isIEEngine(COBA.getContextTab())) {
       menu.label = menu.getAttribute("data-label-fx");
     } else {
@@ -979,8 +966,6 @@ COBA.setupShortcut = function() {
 
 // 设置地址栏按钮
 COBA.setupUrlBar = function() {
-  let showUrlBarLabel = Services.prefs.getBoolPref("extensions.coba.showUrlBarLabel", true);
-  document.getElementById("coba-urlbar-switch-label").hidden = !showUrlBarLabel;
   var btn_identity = document.getElementById("identity-box");
   btn_identity && btn_identity.addEventListener("click", COBA.clickFavIcon, false);
   var btn_urlbar_icon = document.getElementById("coba-urlbar-icon");

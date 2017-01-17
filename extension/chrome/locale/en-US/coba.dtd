@@ -1,8 +1,6 @@
 <!ENTITY coba.switchButton.label "COBA">
 
 <!ENTITY coba.urlbar.switch.tooltip0 "COBA Enabled">
-<!ENTITY coba.urlbar.switch.tooltip1 "Switch rendering engine">
-<!ENTITY coba.urlbar.switch.tooltip3 "Right-Click: Show COBA Options.">
 <!ENTITY coba.urlbar.menuswitch.title.IE "Switch to IE Mode">
 <!ENTITY coba.urlbar.menuswitch.title.Fx "Switch to Firefox">
 <!ENTITY coba.urlbar.notify.title "IE Mode">

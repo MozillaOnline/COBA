@@ -4,22 +4,6 @@
   list-style-image: url("chrome://coba/skin/logo-16-bw.png");
 }
 
-#coba-urlbar-switch[engine="fx"] .coba-status-image {
-  list-style-image: url("chrome://coba/skin/engine-fx.png");
-}
-
-#coba-urlbar-switch[engine="ie"] .coba-status-image {
-  list-style-image: url("chrome://coba/skin/engine-ie.png");
-}
-
-#coba-urlbar-switch {
-  border-left: 1px solid rgba(0, 0, 0, 0.25);
-  margin-top: -1px;
-  margin-bottom: -1px;
-  padding-top: 1px;
-  padding-bottom: 1px;
-}
-
 /* treechildren checkbox */
 
 treechildren::-moz-tree-checkbox {
