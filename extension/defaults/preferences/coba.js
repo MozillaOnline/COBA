@@ -21,4 +21,5 @@ pref("dom.ipc.plugins.enabled.npcoralietab.dll", false);
 pref("dom.ipc.plugins.enabled.npietab.dll", false);
 pref("dom.ipc.plugins.enabled.npietab2.dll", false);
 
+pref("plugin.load_flash_only", false);
 pref("plugin.load_in_parent_process.application/coba", true);
