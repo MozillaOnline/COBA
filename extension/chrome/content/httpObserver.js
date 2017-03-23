@@ -91,6 +91,10 @@ COBA.HttpObserver = {
           post = NetUtil.readInputStreamToString(uploadChannel.uploadStream, len);
         }
 
+        // https://bugzil.la/1305162 breaks our previous workaround at IEHostWindow.cpp
+        if (post.indexOf("\r\n\r\n") < 0) {
+          post = "\r\n\r\n" + post;
+        }
         // 通过Tab的Attribute传送http header和post data参数
         var param = {headers: headers, post: post};
         COBA.setTabAttributeJSON(tab, COBA.navigateParamsAttr, param);
