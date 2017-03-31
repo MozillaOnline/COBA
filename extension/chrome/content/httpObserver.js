@@ -88,7 +88,9 @@ COBA.HttpObserver = {
         var uploadChannel = subject.QueryInterface(Ci.nsIUploadChannel);
         if (uploadChannel && uploadChannel.uploadStream) {
           var len = uploadChannel.uploadStream.available();
-          post = NetUtil.readInputStreamToString(uploadChannel.uploadStream, len);
+          if (len) {
+            post = NetUtil.readInputStreamToString(uploadChannel.uploadStream, len);
+          }
         }
 
         // https://bugzil.la/1305162 breaks our previous workaround at IEHostWindow.cpp
