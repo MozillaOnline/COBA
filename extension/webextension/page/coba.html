@@ -1,0 +1,28 @@
+<!doctype html>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" href="chrome://browser/skin/aboutNetError.css" type="text/css" media="all" />
+<link rel="icon" type="image/vnd.microsoft.icon" id="favicon" href="coba.ico"/>
+<script src="coba.js"></script>
+<body class="neterror">
+  <div id="errorPageContainer" class="container">
+    <div class="title">
+      <h1 class="title-text"></h1>
+    </div>
+    <div id="errorLongContent">
+      <div id="errorShortDesc">
+        <p id="errorShortDescText"></p>
+      </div>
+      <div id="errorLongDesc">
+        <ul>
+          <li data-i18n="useIe">
+          <li data-i18n="useFx" hidden>
+        </ul>
+      </div>
+    </div>
+    <div id="netErrorButtonContainer" class="button-container">
+      <button id="openInIe" class="primary" autocomplete="off" disabled></button>
+      <button id="stayInFx" autocomplete="off" disabled hidden></button>
+    </div>
+  </div>
+</body>

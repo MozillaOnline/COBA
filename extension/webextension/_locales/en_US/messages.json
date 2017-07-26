@@ -1,0 +1,26 @@
+{
+  "extensionDescription": {
+    "message": "China Online Banking Assistant"
+  },
+  "extensionName": {
+    "message": "COBA"
+  },
+  "pageTitle": {
+    "message": "Visit an online banking website?"
+  },
+  "pageShortDesc": {
+    "message": "The online banking website your're visiting makes use of legacy Web technology, and certain part of it may not work properly in Firefox."
+  },
+  "pageLongDesc_useFx": {
+    "message": "You may continue in Firefox if you're browsing the webpage for general information."
+  },
+  "pageLongDesc_useIe": {
+    "message": "Please open the webpage in Internet Explorer if you want to log into your account for payment or other forms of transfers."
+  },
+  "pageButton_stayInFx": {
+    "message": "Continue in Firefox"
+  },
+  "pageButton_openInIe": {
+    "message": "Open in Internet Explorer"
+  }
+}

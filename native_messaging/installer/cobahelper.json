@@ -1,0 +1,7 @@
+{
+  "name": "com.mozillaonline.cobahelper",
+  "description": "Native Messaging host to launch IE as requested by COBA",
+  "path": "helper.exe",
+  "type": "stdio",
+  "allowed_extensions": [ "coba@mozilla.com.cn" ]
+}

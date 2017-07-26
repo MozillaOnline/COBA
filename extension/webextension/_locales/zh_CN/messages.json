@@ -1,0 +1,26 @@
+{
+  "extensionDescription": {
+    "message": "为火狐用户提供支付帮助"
+  },
+  "extensionName": {
+    "message": "网银支付助手"
+  },
+  "pageTitle": {
+    "message": "尝试登录银行网站？"
+  },
+  "pageShortDesc": {
+    "message": "您正在访问的银行网站使用了过时的 Web 技术，部分功能暂不支持 Firefox 火狐浏览器。"
+  },
+  "pageLongDesc_useFx": {
+    "message": "如果您只是浏览银行网站信息，可以继续使用 Firefox。"
+  },
+  "pageLongDesc_useIe": {
+    "message": "如果您需要登录网上银行，进行转账、支付等操作，请使用 Internet Explorer 打开。"
+  },
+  "pageButton_stayInFx": {
+    "message": "继续使用 Firefox"
+  },
+  "pageButton_openInIe": {
+    "message": "使用 Internet Explorer 打开"
+  }
+}
