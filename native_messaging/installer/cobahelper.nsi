@@ -14,25 +14,31 @@
 SetCompressor /SOLID lzma
 Unicode true
 
+LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
+LoadLanguageFile "${NSISDIR}\Contrib\Language files\SimpChinese.nlf"
+!include langstrings.nsh
+
 ; General Attributes
 Icon "${NSISDIR}\Contrib\Graphics\Icons\orange-install-nsis.ico"
 InstallDir "$LOCALAPPDATA\MozillaOnline\COBA"
-Name "COBA Helper"
+Name $(Name)
 OutFile "coba-helper-setup.exe"
 RequestExecutionLevel user
-; This or "SetSilent silent" in `.onInit`?
-; SilentInstall silent
 UninstallIcon "${NSISDIR}\Contrib\Graphics\Icons\orange-uninstall-nsis.ico"
 
 ; Pages
-; Empty for silent install
+PageEx directory
+  PageCallbacks "" onDirectoryShow
+
+  DirText $(DirText)
+PageExEnd
+Page instfiles
+UninstPage uninstConfirm
+UninstPage instfiles
 
 ; Sections
 
 Section
-  ; Not necessary now since the installer is silent and the section is hidden
-  ; SectionIn RO
-
   SetOutPath $INSTDIR
 
   File /a /oname=helper.exe ielauncher.exe
@@ -40,7 +46,7 @@ Section
 
   WriteRegStr HKCU "SOFTWARE\Mozilla\NativeMessagingHosts\com.mozillaonline.cobahelper" "" "$INSTDIR\helper.json"
 
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "DisplayName" "COBA Helper"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "DisplayName" $(Name)
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "Publisher" "Mozilla Online Limited"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "DisplayVersion" "0.5.0"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "UninstallString" '"$INSTDIR\uninstaller.exe"'
@@ -59,9 +65,24 @@ SectionEnd
 
 ; Functions
 
-; defaults to silent mode for now
 Function .onInit
   ; Read the docs about SetRegView again when adding InstallDirRegKey later
   SetRegView 64
+  ReadEnvStr $0 MOZ_CRASHREPORTER_STRINGS_OVERRIDE
+  IfErrors normalInit silentInit
+normalInit:
+  ClearErrors
+  Goto done
+silentInit:
   SetSilent silent
+  Goto done
+done:
+FunctionEnd
+
+Function onDirectoryShow
+  FindWindow $1 "#32770" "" $HWNDPARENT
+  GetDlgItem $0 $1 1019
+  EnableWindow $0 0
+  GetDlgItem $0 $1 1001
+  EnableWindow $0 0
 FunctionEnd
