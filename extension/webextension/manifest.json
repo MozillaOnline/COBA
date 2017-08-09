@@ -19,10 +19,11 @@
   "name": "__MSG_extensionName__",
   "permissions": [
     "<all_urls>",
+    "downloads",
     "nativeMessaging",
     "storage",
     "webRequest",
     "webRequestBlocking"
   ],
-  "version": "3.55"
+  "version": "3.55.1"
 }

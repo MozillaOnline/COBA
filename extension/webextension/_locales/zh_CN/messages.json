@@ -22,5 +22,8 @@
   },
   "pageButton_openInIe": {
     "message": "使用 Internet Explorer 打开"
+  },
+  "pageConfirmInstallHelper": {
+    "message": "为保证能在 Internet Explorer 中正常打开网页，需要下载安装一个辅助程序。点击“确定”开始下载。"
   }
 }

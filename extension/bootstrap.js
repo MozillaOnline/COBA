@@ -139,6 +139,7 @@ var COBA = {
     // non-default stderr value to workaround https://bugzil.la/1371548 on Fx 54
     let proc = await Subprocess.call({
       command: (download.target && download.target.path),
+      arguments: ["/S"],
       stderr: "stdout"
     });
 

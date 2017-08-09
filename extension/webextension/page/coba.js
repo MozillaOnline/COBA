@@ -19,10 +19,18 @@
       delete this.title;
       return this.title = document.querySelector("h1.title-text");
     },
-    handleEvent(evt) {
+    async handleEvent(evt) {
       switch (evt.type) {
         case "click":
-          this.send({ type: evt.target.id, details: this.details });
+          try {
+            await this.send({ type: evt.target.id, details: this.details });
+          } catch (ex) {
+            if (confirm(browser.i18n.getMessage("pageConfirmInstallHelper"))) {
+              this.send({ type: "downloadHost" });
+            } else {
+              evt.target.disabled = true;
+            }
+          }
           break;
         case "DOMContentLoaded":
           this.init(evt);

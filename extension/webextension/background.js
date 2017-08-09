@@ -1,40 +1,32 @@
 var ContentListener = {
-  _onMessage(message, sender, sendResponse) {
+  async _onMessage(message, sender) {
     if (message.dir !== "content2bg") {
-      return;
+      return undefined;
     }
 
-    // initially undefined for "ready"
-    let details = message.details;
     let tabId = sender.tab.id;
+    let details = message.details ||
+                  WebRequestListener.getDetailsForTabId(tabId);
     switch (message.type) {
       case "ready":
-        details = WebRequestListener.getDetailsForTabId(tabId);
-        sendResponse(details);
-
         Utils.sendTrackingWithDetails(details, "load");
-        break;
+
+        return details;
       case "openInIe":
-        NativePort.postMessage(details);
-
         Utils.sendTrackingWithDetails(details, "clickIe");
-        break;
+
+        return NativeHost.sendMessage(details);
+      case "downloadHost":
+        return NativeHost.downloadHost();
       case "stayInFx":
-        Utils.whitelistUrl(details.url);
-
-        let url = details.url;
-        if (details.request_body) {
-          url = Utils.extractReferer(details, url);
-        }
-        browser.tabs.update(tabId, { url: "about:blank" }).then(() => {
-          return browser.tabs.update(tabId, { url });
-        });
-
         Utils.sendTrackingWithDetails(details, "clickFx");
-        break;
+
+        Utils.whitelistUrl(details.url);
+        await browser.tabs.update(tabId, { url: "about:blank" });
+        return browser.tabs.update(tabId, { url: details.url });
       default:
         console.log(message);
-        break;
+        return undefined;
     }
   },
 
@@ -44,18 +36,36 @@ var ContentListener = {
   }
 }
 
-var NativePort = {
-  application: "com.mozillaonline.cobahelper",
+var NativeHost = {
+  appId: "com.mozillaonline.cobahelper",
   debug: false,
+  downloadId: null,
+  downloadOptions: {
+    url: "https://addons.firefox.com.cn/chinaedition/addons/cobahelper/coba-helper-setup.exe",
+    conflictAction: "overwrite"
+  },
   messages: {
     FAILURE: "Navigate IE failed: ",
     SUCCESS: "Navigate IE succeeded: "
   },
   port: null,
 
-  get notInstalled() {
-    delete this.notInstalled;
-    return this.notInstalled = `This extension does not have permission to use native application ${this.application} (or the application is not installed)`;
+  get notInstalledMsg() {
+    delete this.notInstalledMsg;
+    return this.notInstalledMsg = `This extension does not have permission to use native application ${this.appId} (or the application is not installed)`;
+  },
+
+  async _onChanged(delta) {
+    if (delta.id !== this.downloadId) {
+      return;
+    }
+    if (!delta.state || delta.state.current !== "complete") {
+      return;
+    }
+    browser.downloads.onChanged.removeListener(this.onChanged);
+
+    await browser.downloads.show(this.downloadId);
+    await browser.downloads.erase({ id: this.downloadId });
   },
 
   async _onDisconnect(port) {
@@ -65,17 +75,23 @@ var NativePort = {
 
     let data = { action: "disconnect" };
     switch (port.error.message) {
-      case this.notInstalled:
+      case this.notInstalledMsg:
+        if (await Utils.getPref("host.installed")) {
+          data.succeeded = 0;
+          data.retval = -2;
+          break;
+        }
+
         try {
           let response = await Utils.sendLegacy({ type: "install_host" });
           if (!response || response.exitCode !== 0) {
             throw response;
           }
 
-          this.connect();
-
           data.succeeded = 1;
           data.retval = 0;
+
+          await Utils.setPref({ "host.installed": true });
         } catch(ex) {
           console.error(ex);
 
@@ -85,14 +101,51 @@ var NativePort = {
         break;
       default:
         console.error(port.error);
-        // maybe retry or something like that?
         break;
     }
 
     Utils.sendTracking({ data });
+    this.cleanup();
   },
 
-  _onMessage(response) {
+  cleanup() {
+    this.port.onDisconnect.removeListener(this.onDisconnect);
+    this.port = null;
+  },
+
+  async detect() {
+    try {
+      await this.sendMessage("ping");
+    } catch (ex) {
+      this.port = browser.runtime.connectNative(this.appId);
+      this.port.onDisconnect.addListener(this.onDisconnect);
+    }
+  },
+
+  async downloadHost() {
+    this.downloadId = await browser.downloads.download(this.downloadOptions);
+    browser.downloads.onChanged.addListener(this.onChanged);
+    return this.downloadId;
+  },
+
+  init() {
+    this.onChanged = this._onChanged.bind(this);
+    this.onDisconnect = this._onDisconnect.bind(this);
+
+    this.detect();
+  },
+
+  async sendMessage(msg) {
+    if (this.port) {
+      console.warn(`NativeHost.port should normally be null`);
+      this.cleanup();
+    }
+
+    if (this.debug) {
+      let msgAsString = JSON.stringify(msg, null, 2);
+      console.log(`COBA => helper:\n${msgAsString}`);
+    }
+    let response = await browser.runtime.sendNativeMessage(this.appId, msg);
     if (this.debug) {
       console.log(`COBA <= helper:\n${response}`);
     }
@@ -108,47 +161,6 @@ var NativePort = {
     if (data.succeeded !== undefined) {
       Utils.sendTracking({ data });
     }
-  },
-
-  connect() {
-    if (this.port) {
-      this.cleanup();
-    }
-
-    this.port = browser.runtime.connectNative(this.application);
-    this.port.onDisconnect.addListener(this.onDisconnect);
-    this.port.onMessage.addListener(this.onMessage);
-  },
-
-  cleanup() {
-    this.port.onMessage.removeListener(this.onMessage);
-    this.port.onDisconnect.removeListener(this.onDisconnect);
-    this.port = null;
-  },
-
-  init() {
-    this.onDisconnect = this._onDisconnect.bind(this);
-    this.onMessage = this._onMessage.bind(this);
-
-    this.connect();
-  },
-
-  postMessage(msg, retry = 1) {
-    try {
-      this.port.postMessage(msg);
-
-      if (this.debug) {
-        let msgAsString = JSON.stringify(msg, null, 2);
-        console.log(`COBA => helper:\n ${msgAsString}`);
-      }
-    } catch(ex) {
-      console.error(ex);
-
-      if (retry > 0) {
-        this.connect();
-        this.postMessage(msg, retry - 1);
-      }
-    }
   }
 };
 
@@ -160,7 +172,8 @@ var Utils = {
       "builtin.urllist": this.defaultUrlList,
       "builtin.update.enabled": true,
       "custom.enabled": true,
-      "custom.urllist": []
+      "custom.urllist": [],
+      "host.installed": false
     };
   },
   defaultUrlList: [
@@ -226,6 +239,12 @@ var Utils = {
 
   getHostFromUrl(url) {
     return (new URL(url)).host;
+  },
+
+  async getPref(key) {
+    let prefs = await browser.storage.local.get(this.defaultPrefs);
+
+    return prefs[key];
   },
 
   getUrlFilterForUrl(url, urlFilters) {
@@ -301,6 +320,10 @@ var Utils = {
     };
 
     return this.sendTracking({ data });
+  },
+
+  async setPref(kvObj) {
+    return browser.storage.local.set(kvObj);
   },
 
   whitelistUrl(url) {
@@ -424,5 +447,5 @@ var WebRequestListener = {
 };
 
 ContentListener.init();
-NativePort.init();
+NativeHost.init();
 WebRequestListener.init().catch(ex => console.error(ex));

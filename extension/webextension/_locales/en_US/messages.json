@@ -22,5 +22,8 @@
   },
   "pageButton_openInIe": {
     "message": "Open in Internet Explorer"
+  },
+  "pageConfirmInstallHelper": {
+    "message": "A helper application is necessary to open the webpage in Internet Explorer. Click \"OK\" to download the installer."
   }
 }
