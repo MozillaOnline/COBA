@@ -55,7 +55,7 @@
       }
 
       for (let button of this.buttons) {
-        button.addEventListener("click", this, false);
+        button.addEventListener("click", this);
         button.disabled = false;
       }
     },
@@ -91,6 +91,6 @@
   };
 
   for (let evtName of ["DOMContentLoaded", "unload"]) {
-    window.addEventListener(evtName, needIE, false);
+    window.addEventListener(evtName, needIE);
   }
 })();

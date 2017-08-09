@@ -14,9 +14,10 @@ XPCOMUtils.defineLazyModuleGetter(this, "Subprocess",
 XPCOMUtils.defineLazyGetter(this, "CETracking", () => {
   try {
     return Cc["@mozilla.com.cn/tracking;1"].getService().wrappedJSObject;
-  } catch(ex) {
+  } catch (ex) {
     console.error(ex);
-  };
+    return null;
+  }
 });
 
 Cu.importGlobalProperties(["URLSearchParams", "XMLHttpRequest"]);
@@ -61,20 +62,22 @@ var COBA = {
   // the majority of cases should be covered by these two types of listItems
   convertListItem(listItem) {
     if (listItem.endsWith("\b")) {
-      return;
+      return "";
     }
 
     try {
       let uri = Services.io.newURI(listItem);
       return uri.spec;
-    } catch(ex) {}
+    } catch (ex) {}
 
     try {
       let matches = /^(\*\.[^*/]+)\*$/.exec(listItem);
       if (matches) {
         return `*://${matches[1]}/*`;
       }
-    } catch(ex) {}
+    } catch (ex) {}
+
+    return "";
   },
 
   // return undefined to avoid overriding earlier value with empty array
@@ -149,7 +152,8 @@ var COBA = {
   sendTracking(rawData) {
     return new Promise((resolve, reject) => {
       if (!CETracking || !CETracking.ude) {
-        return reject();
+        reject();
+        return;
       }
 
       let usp = new URLSearchParams();

@@ -92,7 +92,7 @@ var NativeHost = {
           data.retval = 0;
 
           await Utils.setPref({ "host.installed": true });
-        } catch(ex) {
+        } catch (ex) {
           console.error(ex);
 
           data.succeeded = 0;
@@ -221,7 +221,7 @@ var Utils = {
       try {
         new URL(rawUrlFilter);
         this.enabledUrlFilters.urls.add(rawUrlFilter);
-      } catch(ex) {
+      } catch (ex) {
         let matches = /\*:\/\/\*\.([^*/]+)\/\*/.exec(rawUrlFilter);
         if (matches) {
           this.enabledUrlFilters.hostSuffixes.add(matches[1]);
@@ -309,7 +309,7 @@ var Utils = {
 
   sendTrackingWithDetails(details, action) {
     if (!details) {
-      return;
+      return Promise.reject();
     }
 
     let data = {
@@ -421,7 +421,7 @@ var WebRequestListener = {
     var decoder = new TextDecoder();
     try {
       return decoder.decode(requestBody.raw[0].bytes);
-    } catch(ex) {
+    } catch (ex) {
       return "";
     }
   },
