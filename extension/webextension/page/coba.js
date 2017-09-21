@@ -21,9 +21,41 @@
     },
     async handleEvent(evt) {
       switch (evt.type) {
-        case "click":
+        case "click": {
+          let debounceProject = new class {
+            constructor() {
+              this.enable = false;
+              this.buttonText = "";
+              this.width = null;
+              this.elt = null;
+              this._used = false;
+            }
+            start(elt) {
+              if (this._used) return;
+              this.elt = elt;
+              this.enable = true;
+              this.buttonText = this.elt.textContent;
+              this.width = this.elt.style.width;
+
+              this.elt.style.width = getComputedStyle(this.elt).width;
+              this.elt.disabled = true;
+              this.elt.textContent = "Loading...";
+            }
+            rollback() {
+              if (this._used) return;
+              if (!this.enable) return;
+              this.elt.style.width = this.width;
+              this.elt.disabled = false;
+              this.elt.textContent = this.buttonText;
+              this._used = true;
+            }
+          };
+          if (evt.target.id === "openInIe") {
+            debounceProject.start(evt.target);
+          }
           try {
             await this.send({ type: evt.target.id, details: this.details });
+            debounceProject.rollback();
           } catch (ex) {
             if (confirm(browser.i18n.getMessage("pageConfirmInstallHelper"))) {
               this.send({ type: "downloadHost" });
@@ -32,7 +64,7 @@
             }
           }
           break;
-        case "DOMContentLoaded":
+        } case "DOMContentLoaded":
           this.init(evt);
           break;
         case "unload":
