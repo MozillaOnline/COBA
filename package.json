@@ -3,7 +3,7 @@
   "version": "3.55.1",
   "description": "China Online Banking Assistant",
   "scripts": {
-    "lint": "eslint extension"
+    "lint": "eslint webextension"
   },
   "author": "Mozilla Online Limited",
   "license": "MPL-2.0",
