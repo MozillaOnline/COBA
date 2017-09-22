@@ -79,24 +79,9 @@ var NativeHost = {
         if (await Utils.getPref("host.installed")) {
           data.succeeded = 0;
           data.retval = -2;
-          break;
-        }
-
-        try {
-          let response = await Utils.sendLegacy({ type: "install_host" });
-          if (!response || response.exitCode !== 0) {
-            throw response;
-          }
-
-          data.succeeded = 1;
-          data.retval = 0;
-
-          await Utils.setPref({ "host.installed": true });
-        } catch (ex) {
-          console.error(ex);
-
+        } else {
           data.succeeded = 0;
-          data.retval = (ex && ex.exitCode) || -1;
+          data.retval = -3;
         }
         break;
       default:
@@ -285,26 +270,48 @@ var Utils = {
     return !!this.getUrlFilterForUrl(url, this.disabledUrlFilters);
   },
 
-  async migratePrefs() {
-    let legacyPrefs = await this.sendLegacy({ type: "migrate_prefs" });
-
-    for (let key in legacyPrefs) {
-      if (legacyPrefs[key] === undefined) {
-        delete legacyPrefs[key];
-      }
+  async sendTracking(tracking) {
+    if (await this.canSendTracking()) {
+      return this._sendTracking(tracking.data);
     }
+      return false;
 
-    return browser.storage.local.set(legacyPrefs);
+  },
+  _sendTracking(rawData) {
+    return new Promise(function(resolve, reject) {
+      let usp = new URLSearchParams();
+      for (let key in rawData) {
+        usp.append(key, rawData[key]);
+      }
+      usp.append("random", Math.random());
+
+      let url = "http://addons.g-fox.cn/coba-webext.gif";
+      url += "?" + usp.toString();
+
+      let xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.onload = evt => resolve(evt.target.status);
+      xhr.onloadend = () => reject();
+      xhr.send();
+    });
   },
 
-  sendLegacy(msg) {
-    msg.dir = "bg2legacy";
-    return browser.runtime.sendMessage(msg);
-  },
-
-  sendTracking(tracking) {
-    tracking.type = "send_tracking";
-    return this.sendLegacy(tracking);
+  /**
+   * @return {boolean}
+   * @async
+   * */
+  async canSendTracking() {
+    return browser.runtime.sendMessage(
+      "cpmanager@mozillaonline.com",
+      {type: "trackingEnabled"},
+      {},
+    ).then(
+      v => Boolean(v && v.trackingEnabled),
+      e => {
+        console.error(e);
+        return false;
+      }
+    );
   },
 
   sendTrackingWithDetails(details, action) {
@@ -315,8 +322,7 @@ var Utils = {
     let data = {
       action,
       method: (details.request_body ? "POST" : "GET"),
-      rawReferer: this.extractReferer(details),
-      rawUrl: details.url
+      // todo: add rawUrl and rawReferer key when https://bugzil.la/1315558 fixed
     };
 
     return this.sendTracking({ data });
@@ -371,7 +377,6 @@ var WebRequestListener = {
   async init() {
     this.onBeforeRequest = this._onBeforeRequest.bind(this);
 
-    await Utils.migratePrefs();
     return this.startListener();
   },
 
