@@ -38,6 +38,19 @@
         case "unload":
           this.uninit(evt);
           break;
+        case "keypress":
+          [{
+            keyCode: 27, // Esc key
+            action() {
+              document.querySelector("#stayInFx").click();
+            },
+          }, {
+            keyCode: 13, // Enter key
+            action() {
+              document.querySelector("#openInIe").click();
+            },
+          }].find(item => item.keyCode === evt.keyCode).action();
+          break;
         default:
           break;
       }
@@ -90,7 +103,7 @@
     }
   };
 
-  for (let evtName of ["DOMContentLoaded", "unload"]) {
+  for (let evtName of ["DOMContentLoaded", "unload", "keypress"]) {
     window.addEventListener(evtName, needIE);
   }
 })();
