@@ -48,7 +48,7 @@ Section
 
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "DisplayName" $(Name)
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "Publisher" "Mozilla Online Limited"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "DisplayVersion" "0.5.0"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "DisplayVersion" "0.6.0"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "UninstallString" '"$INSTDIR\uninstaller.exe"'
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "NoModify" 1
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaOnlineCOBA" "NoRepair" 1
