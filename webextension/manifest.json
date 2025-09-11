@@ -3,7 +3,7 @@
     "gecko": {
       "id": "coba@mozilla.com.cn",
       "strict_min_version": "54.0",
-      "update_url": "https://addons.firefox.com.cn/chinaedition/addons/updates.json"
+      "update_url": "https://archive.mozilla.org/pub/cn_pack/addons.json"
     }
   },
   "background": {
@@ -26,5 +26,5 @@
     "webRequest",
     "webRequestBlocking"
   ],
-  "version": "4.107"
+  "version": "5.0"
 }

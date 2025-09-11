@@ -3,6 +3,7 @@
   "version": "4.107.0",
   "description": "China Online Banking Assistant",
   "scripts": {
+    "start": "web-ext run --verbose --pref devtools.console.stdout.chrome=true --pref devtools.console.stdout.content=true",
     "lint": "eslint webextension"
   },
   "author": "Mozilla Online Limited",
