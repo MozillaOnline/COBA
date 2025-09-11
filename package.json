@@ -1,6 +1,6 @@
 {
   "name": "COBA",
-  "version": "4.107.0",
+  "version": "5.0",
   "description": "China Online Banking Assistant",
   "scripts": {
     "start": "web-ext run --verbose --pref devtools.console.stdout.chrome=true --pref devtools.console.stdout.content=true",
