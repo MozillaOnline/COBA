@@ -9,18 +9,12 @@ var ContentListener = {
                   WebRequestListener.getDetailsForTabId(tabId);
     switch (message.type) {
       case "ready":
-        Utils.sendTrackingWithDetails(details, "load");
-
         return details;
       case "openInIe":
-        Utils.sendTrackingWithDetails(details, "clickIe");
-
         return NativeHost.sendMessage(details);
       case "downloadHost":
         return NativeHost.downloadHost();
       case "stayInFx":
-        Utils.sendTrackingWithDetails(details, "clickFx");
-
         Utils.whitelistUrl(details.url);
         await browser.tabs.update(tabId, { url: "about:blank" });
         return browser.tabs.update(tabId, { url: details.url });
@@ -41,7 +35,7 @@ var NativeHost = {
   debug: false,
   downloadId: null,
   downloadOptions: {
-    url: "https://addons.firefox.com.cn/chinaedition/addons/cobahelper/coba-helper-setup.exe",
+    url: "https://archive.mozilla.org/pub/cn_pack/cobahelper/coba-helper-setup.exe",
     conflictAction: "overwrite"
   },
   messages: {
@@ -89,7 +83,6 @@ var NativeHost = {
         break;
     }
 
-    Utils.sendTracking({ data });
     this.cleanup();
   },
 
@@ -142,9 +135,6 @@ var NativeHost = {
     } else if (response.startsWith(this.messages.FAILURE)) {
       data.succeeded = 0;
       data.retval = response.slice(this.messages.FAILURE.length);
-    }
-    if (data.succeeded !== undefined) {
-      Utils.sendTracking({ data });
     }
   }
 };
@@ -268,64 +258,6 @@ var Utils = {
 
   isUrlWhitelisted(url) {
     return !!this.getUrlFilterForUrl(url, this.disabledUrlFilters);
-  },
-
-  async sendTracking(tracking) {
-    if (await this.canSendTracking()) {
-      return this._sendTracking(tracking.data);
-    }
-      return false;
-
-  },
-  _sendTracking(rawData) {
-    return new Promise(function(resolve, reject) {
-      let usp = new URLSearchParams();
-      for (let key in rawData) {
-        usp.append(key, rawData[key]);
-      }
-      usp.append("random", Math.random());
-
-      let url = "http://addons.g-fox.cn/coba-webext.gif";
-      url += "?" + usp.toString();
-
-      let xhr = new XMLHttpRequest();
-      xhr.open("GET", url, true);
-      xhr.onload = evt => resolve(evt.target.status);
-      xhr.onloadend = () => reject();
-      xhr.send();
-    });
-  },
-
-  /**
-   * @return {boolean}
-   * @async
-   * */
-  async canSendTracking() {
-    return browser.runtime.sendMessage(
-      "cpmanager@mozillaonline.com",
-      {type: "trackingEnabled"},
-      {},
-    ).then(
-      v => Boolean(v && v.trackingEnabled),
-      e => {
-        console.error(e);
-        return false;
-      }
-    );
-  },
-
-  sendTrackingWithDetails(details, action) {
-    if (!details) {
-      return Promise.reject();
-    }
-
-    let data = {
-      action,
-      method: (details.request_body ? "POST" : "GET"),
-      // todo: add rawUrl and rawReferer key when https://bugzil.la/1315558 fixed
-    };
-
-    return this.sendTracking({ data });
   },
 
   async setPref(kvObj) {
